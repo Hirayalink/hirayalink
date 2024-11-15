@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.hero-background {
+  background-image: url("../public/background-hero.png");
+}
+
+/* Normalize CSS */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'YourFont', sans-serif; /* Ensure a consistent font */
+  line-height: 1.5; /* Improves readability */
+}
+
+.modal-box {
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 0;
+}
+

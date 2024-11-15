@@ -1,0 +1,189 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model Admin {
+  id            String   @id @default(uuid()) // Change to UUID
+  name          String   @unique
+  contactNumber String   @unique
+  address       String?
+  password      String
+  barangayId    String // Foreign key to Barangay
+  barangay      Barangay @relation(fields: [barangayId], references: [id]) // Relation to Barangay
+}
+
+model Donor {
+  id            String     @id @default(uuid()) // Change to UUID
+  name          String     @unique
+  orgName       String?
+  contactNumber String     @unique
+  address       String?
+  password      String
+  Comment       Comment[]
+  Like          Like[]
+  donations     Donation[]
+}
+
+model BarangayRequestPost {
+  id              String     @id @default(uuid()) // Change to UUID
+  area            String
+  person          String
+  typeOfCalamity  String
+  inKind          Json
+  specifications  Json
+  contactNumber   String
+  dropOffAddress  String
+  dropOffLandmark String
+  image           Bytes?     @db.ByteA
+  dateTime        DateTime   @default(now())
+  batchNumber     Int // Added field for batch number
+  likes           Like[]     @relation("BarangayRequestPostLikes")
+  comments        Comment[]  @relation("BarangayRequestPostComments")
+  Barangay        Barangay?  @relation(fields: [barangayId], references: [id])
+  barangayId      String?
+  donations       Donation[]
+}
+
+model Like {
+  id                     String                @id @default(uuid()) // Change to UUID
+  userId                 String
+  user                   Donor                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  barangayRequestPostId  String?
+  barangayRequestPost    BarangayRequestPost?  @relation("BarangayRequestPostLikes", fields: [barangayRequestPostId], references: [id], onDelete: Cascade)
+  recipientRequestPostId String?
+  recipientRequestPost   RecipientRequestPost? @relation("RecipientRequestPostLikes", fields: [recipientRequestPostId], references: [id], onDelete: Cascade)
+  createdAt              DateTime              @default(now())
+
+  @@unique([userId, barangayRequestPostId])
+  @@unique([userId, recipientRequestPostId])
+}
+
+model Comment {
+  id                     String                @id @default(uuid()) // Change to UUID
+  content                String                @db.Text
+  userId                 String
+  user                   Donor                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  barangayRequestPostId  String?
+  barangayRequestPost    BarangayRequestPost?  @relation("BarangayRequestPostComments", fields: [barangayRequestPostId], references: [id], onDelete: Cascade)
+  recipientRequestPostId String?
+  recipientRequestPost   RecipientRequestPost? @relation("RecipientRequestPostComments", fields: [recipientRequestPostId], references: [id], onDelete: Cascade)
+  createdAt              DateTime              @default(now())
+}
+
+model Batch {
+  id          String   @id @default(uuid()) // Change to UUID
+  batchNumber String   @unique // Unique identifier for the batch
+  description String? // Optional description for the batch
+  donationIds String // Comma-separated list of donation IDs
+  createdAt   DateTime @default(now()) // Timestamp for when the batch was created
+}
+
+model RecipientRequestPost {
+  id                String    @id @default(uuid())
+  completeName      String    @db.VarChar(191)
+  age               Int
+  area              String
+  noOfFamilyMembers Int
+  contactNumber     String    @db.VarChar(191)
+  emailAddress      String?   @db.VarChar(191)
+  typeOfCalamity    String    @db.VarChar(191)
+  inKindNecessities String    @db.Text
+  specifications    String    @db.Text
+  uploadedPhoto     Bytes?    @db.ByteA
+  dateTime          DateTime  @default(now())
+  likes             Like[]    @relation("RecipientRequestPostLikes")
+  comments          Comment[] @relation("RecipientRequestPostComments")
+  barangayId        String?
+  Barangay          Barangay? @relation(fields: [barangayId], references: [id])
+}
+
+model Donation {
+  id                    String              @id @default(uuid())
+  controlNumber         String              @unique
+  donorId               String
+  donor                 Donor               @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  barangayId            String
+  barangay              Barangay            @relation(fields: [barangayId], references: [id], onDelete: Cascade)
+  donationStatus        DonationStatus
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  donationItems         DonationItem[]
+  statusLogs            DonationStatusLog[]
+  barangayRequestPostId String
+  BarangayRequestPost   BarangayRequestPost @relation(fields: [barangayRequestPostId], references: [id], onDelete: Cascade)
+}
+
+model DonationItem {
+  id         String   @id @default(uuid()) // Change to UUID
+  donationId String
+  donation   Donation @relation(fields: [donationId], references: [id], onDelete: Cascade)
+  itemName   String
+  quantity   Int
+}
+
+model DonationStatusLog {
+  id         String         @id @default(uuid()) // Change to UUID
+  donationId String
+  donation   Donation       @relation(fields: [donationId], references: [id], onDelete: Cascade)
+  status     DonationStatus
+  timestamp  DateTime       @default(now())
+  remarks    String?
+}
+
+model Barangay {
+  id                    String                 @id @default(uuid()) // Change to UUID
+  name                  String                 @unique
+  donations             Donation[] // Relationship with Donations
+  Admin                 Admin[]
+  barangayRequestPosts  BarangayRequestPost[]
+  recipientRequestPosts RecipientRequestPost[]
+  successStories        SuccessStory[]
+  calamityImpact        calamityImpact[]
+}
+
+model SuccessStory {
+  id                 String    @id @default(uuid()) // Change to UUID
+  area               String?   @db.VarChar(191) // Barangay number/area
+  barangayId         String?
+  Barangay           Barangay? @relation(fields: [barangayId], references: [id], onDelete: Cascade)
+  nameOfCalamity     String?   @db.VarChar(191) // Name of the calamity
+  controlNumber      String?   @db.VarChar(191) // Control number for tracking
+  transactionIds     String?   @db.Text // Comma-separated list of transaction IDs
+  batchNumber        String?   @db.VarChar(191) // Batch number related to the aid
+  numberOfRecipients Int? // Number of people who received aid
+  storyText          String?   @db.Text // The actual success story text
+  createdAt          DateTime  @default(now()) // Timestamp when the success story was created
+  image              Bytes?    @db.ByteA // Image of the success story
+}
+
+model calamityImpact {
+  id             String   @id @default(uuid())
+  barangayId     String
+  Barangay       Barangay @relation(fields: [barangayId], references: [id], onDelete: Cascade)
+  area           String
+  nameOfCalamity String
+  storyText      String?  @db.Text
+  createdAt      DateTime @default(now())
+  image          Bytes?   @db.ByteA
+}
+
+// Enum for donation status
+enum DonationStatus {
+  PLEDGED
+  COLLECTED
+  PROCESSING
+  IN_TRANSIT
+  RECEIVED
+}
