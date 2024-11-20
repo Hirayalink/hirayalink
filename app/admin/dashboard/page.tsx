@@ -8,7 +8,7 @@ const AdminDashboard = () => {
       <div className="hero-background bg-cover max-h-[30rem] sticky top-0 z-10">
         <div className="py-10 text-center backdrop-blur-sm">
           <h1 className="text-5xl font-bold text-white">
-            Admin Dashboard
+            Recipient Donation Requests
           </h1>
         </div>
       </div>

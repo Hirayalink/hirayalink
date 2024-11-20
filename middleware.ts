@@ -11,9 +11,13 @@ export const config = {
 };
 
 export async function middleware(request: NextRequest) {
-  try {
-    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
-    
+  try {    
+    const token = await getToken({ 
+      req: request, 
+      secret: process.env.NEXTAUTH_SECRET,
+      secureCookie: process.env.NODE_ENV === 'production'
+    });
+
     if (!token) {
       console.log("No token found, redirecting to login");
       return NextResponse.redirect(new URL('/login', request.url));

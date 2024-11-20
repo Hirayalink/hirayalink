@@ -57,8 +57,9 @@ export default function DonorSignUp() {
       } else {
         setError(data.message || "Sign up failed"); // Display error message from the backend
       }
-    } catch (err) {
+    } catch (error) {
       setError("Something went wrong");
+      console.error("Error during signup:", error);
     }
   };
 

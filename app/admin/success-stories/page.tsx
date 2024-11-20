@@ -25,7 +25,6 @@ export default function SuccessStoryForm() {
   const [selectedPostId, setSelectedPostId] = useState("");
   const [selectedPostArea, setSelectedPostArea] = useState(""); // State to hold selected post area
   const [selectedPostBatchNumber, setSelectedPostBatchNumber] = useState(""); // State to hold selected post batch number
-  const [donorIds, setDonorIds] = useState("");
 
   // State to hold form data
   const [formData, setFormData] = useState({

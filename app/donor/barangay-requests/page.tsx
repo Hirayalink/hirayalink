@@ -29,7 +29,6 @@ export default function BarangayRequests() {
   const { data: session } = useSession();
   const [posts, setPosts] = useState<BarangayRequestPost[]>([]);
   const [showComments, setShowComments] = useState<Record<string, boolean>>({});
-  const [newComment, setNewComment] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());

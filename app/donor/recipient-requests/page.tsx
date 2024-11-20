@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import PostList from "@/components/donor/posts/recipient-requests/Post";
 import PostDetailsModal from "@/components/donor/posts/recipient-requests/PostDetailsModal";
-import type { PostProps, RecipientRequests } from "@/types/recipient";
+import type { RecipientRequests } from "@/types/recipient";
 import PostSkeleton from "@/components/donor/posts/PostSkeleton";
 
 export default function RecipientRequests() {
@@ -16,6 +16,22 @@ export default function RecipientRequests() {
   const observer = useRef<IntersectionObserver | null>(null);
   const [selectedPost, setSelectedPost] = useState<RecipientRequests | null>(
     null
+  );
+
+  const lastPostElementRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isLoading) return;
+      if (observer.current) observer.current.disconnect();
+      
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      });
+
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, hasMore]
   );
 
   const fetchPosts = useCallback(async () => {
@@ -60,20 +76,6 @@ export default function RecipientRequests() {
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
-
-  const lastPostElementRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (isLoading) return;
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          setPage((prevPage) => prevPage + 1);
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    [isLoading, hasMore]
-  );
 
   const handleLikeClick = async (postId: string) => {
     try {
@@ -164,6 +166,7 @@ export default function RecipientRequests() {
             handleAddComment={handleAddComment}
             likedPosts={likedPosts}
             onOpenDetails={handleOpenPostDetails}
+            lastPostRef={lastPostElementRef}
           />
         </Suspense>
         {isLoading && <PostSkeleton count={3} />}

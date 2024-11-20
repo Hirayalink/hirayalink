@@ -91,52 +91,6 @@ export default function ManageDonationRequestPosts() {
     }
   }, [session]);
 
-  const handleUpdateStatus = async (
-    donationId: number,
-    newStatus: string,
-    remarks: string
-  ) => {
-    try {
-      const response = await fetch(`/api/update-status`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          donationId,
-          status: newStatus,
-          remarks,
-        }),
-      });
-
-      if (response.ok) {
-        const updatedDonation: Partial<Donation> = await response.json();
-
-        // Update the local state
-        setPosts((prevPosts) =>
-          prevPosts.map((post) => ({
-            ...post,
-            donations: post.donations.map((donation) =>
-              donation.id === updatedDonation.id
-                ? {
-                    ...donation,
-                    ...updatedDonation,
-                    donor: donation.donor, // Preserve the existing donor information
-                  }
-                : donation
-            ),
-          }))
-        );
-
-        setSelectedDonation(null);
-      } else {
-        throw new Error("Failed to update donation status");
-      }
-    } catch (error) {
-      console.error("Error updating donation status:", error);
-    }
-  };
-
   const handleBulkUpdateStatus = async (newStatus: string, remarks: string) => {
     try {
       const response = await fetch(`/api/update-status`, {
@@ -154,8 +108,6 @@ export default function ManageDonationRequestPosts() {
       if (!response.ok) {
         throw new Error("Failed to update donation statuses");
       }
-
-      const updatedDonations = await response.json();
 
       // Update the local state
       setPosts((prevPosts) =>
@@ -394,6 +346,7 @@ function UpdateStatusModal({
         success: false,
         message: "Failed to update donations. Please try again.",
       });
+      console.error("Error updating donation statuses:", error);
     } finally {
       setIsConfirming(false);
     }

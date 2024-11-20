@@ -33,6 +33,7 @@ export function verifyPassword(password: string, storedHash: string): boolean {
     ).toString("hex");
     return hash === verifyHash;
   } catch (error) {
+    console.error("Error verifying password:", error);
     return false;
   }
 }

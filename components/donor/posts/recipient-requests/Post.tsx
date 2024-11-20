@@ -9,10 +9,11 @@ interface PostProps {
   handleAddComment: (postId: string, content: string) => void;
   likedPosts: Set<string>;
   onOpenDetails: (post: RecipientRequests) => void;
+  lastPostRef: (node: HTMLDivElement | null) => void;
 }
 
 const Post = forwardRef<HTMLDivElement, PostProps>(
-  ({ posts, handleLikeClick, handleAddComment, likedPosts, onOpenDetails }, ref) => {
+  ({ posts, handleLikeClick, handleAddComment, likedPosts, onOpenDetails, lastPostRef }, ref) => {
     if (posts.length === 0) {
       return <div>No posts available.</div>;
     }
@@ -84,5 +85,7 @@ const Post = forwardRef<HTMLDivElement, PostProps>(
     );
   }
 );
+
+Post.displayName = 'Post'
 
 export default Post;

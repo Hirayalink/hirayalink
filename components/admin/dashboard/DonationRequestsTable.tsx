@@ -36,10 +36,6 @@ interface CombinedData {
   specifications?: Record<string, string[]>;
 }
 
-interface ParsedData {
-  [key: string]: string | string[];
-}
-
 const DonationRequestsTable = () => {
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,6 +87,7 @@ const DonationRequestsTable = () => {
         setRequests(sortedRequests);
         setTotalPages(responseData.totalPages || 0);
       } catch (error) {
+        console.error("Error fetching requests:", error);
         setError(error instanceof Error ? error.message : "An error occurred");
       } finally {
         setLoading(false);

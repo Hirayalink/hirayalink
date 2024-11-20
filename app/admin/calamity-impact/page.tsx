@@ -102,7 +102,6 @@ export default function CalamityImpactForm() {
       });
 
       if (response.ok) {
-        const result = await response.json();
         setShowSuccessModal(true);
         resetForm();
       } else {
