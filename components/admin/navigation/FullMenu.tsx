@@ -24,7 +24,8 @@ export default function FullMenu() {
   const { data: session } = useSession();
 
   const menuItems = [
-    { href: "/admin/dashboard", label: "Dashboard" },
+    { href: "/admin", label: "Dashboard" },
+    { href: "/admin/dashboard", label: "Recipient Donation Requests" },
     { href: "/admin/success-stories", label: "Success Stories" },
     { href: "/admin/admin-request-donation", label: "Request Donation" },
     {
@@ -100,11 +101,6 @@ export default function FullMenu() {
             </li>
           ))}
         </ul>
-        <style jsx>{`
-          .group:hover {
-            box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
-          }
-        `}</style>
       </nav>
     </>
   );

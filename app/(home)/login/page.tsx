@@ -51,8 +51,9 @@ export default function Login() {
       } else {
         setError(result?.error || "Login failed");
       }
-    } catch (err) {
+    } catch (error) {
       setError("Something went wrong");
+      console.error("Error during login:", error);
     } finally {
       setIsLoading(false);
     }

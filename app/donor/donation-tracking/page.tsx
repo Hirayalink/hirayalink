@@ -46,14 +46,6 @@ enum DonationStatus {
   RECEIVED = "RECEIVED",
 }
 
-interface Post {
-  id: string;
-  area: string;
-  person: string;
-  typeOfCalamity: string;
-  inKind: string;
-}
-
 export default function DonationTracking() {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
