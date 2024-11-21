@@ -9,9 +9,7 @@ const Navbar: React.FC = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth <= 768;
-      setIsMobile(mobile);
-      if (!mobile) setIsOpen(true);
+      setIsMobile(window.innerWidth <= 768);
     };
 
     window.addEventListener("resize", handleResize);
@@ -22,27 +20,43 @@ const Navbar: React.FC = () => {
     };
   }, []);
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
-
   return (
-    <nav className="fixed top-0 left-0 h-screen w-72">
-      {isMobile && (
-        <button 
-          onClick={toggleMenu}
-          className="fixed top-4 left-4 z-20 text-white bg-primary p-2 rounded-md"
-        >
-          {isOpen ? '✕' : '☰'}
-        </button>
+    <>
+      {/* Overlay for mobile when menu is open */}
+      {isMobile && isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30"
+          onClick={() => setIsOpen(false)}
+        />
       )}
-      <div className={`
-        ${isMobile ? 'fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out' : ''}
-        ${isMobile && !isOpen ? '-translate-x-full' : 'translate-x-0'}
+
+      <nav className={`
+        fixed top-0 left-0 h-screen z-40
+        ${isMobile ? 'pointer-events-none' : ''}
       `}>
-        <FullMenu />
-      </div>
-    </nav>
+        {/* Mobile Toggle Button */}
+        {isMobile && (
+          <button 
+            onClick={() => setIsOpen(!isOpen)}
+            className="fixed top-4 left-4 z-50 p-3 rounded-lg bg-primary text-white hover:bg-primary/90 pointer-events-auto"
+            aria-label={isOpen ? 'Close menu' : 'Open menu'}
+          >
+            {isOpen ? '✕' : '☰'}
+          </button>
+        )}
+
+        {/* Navigation Content */}
+        <div className={`
+          pointer-events-auto
+          ${isMobile ? [
+            'transition-transform duration-300 ease-in-out',
+            isOpen ? 'translate-x-0' : '-translate-x-full'
+          ].join(' ') : ''}
+        `}>
+          <FullMenu />
+        </div>
+      </nav>
+    </>
   );
 };
 

@@ -13,7 +13,13 @@ import {
   Chart,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import { FaClipboardList, FaBell } from "react-icons/fa";
+import {
+  FaClipboardList,
+  FaBell,
+  FaChartBar,
+  FaChartPie,
+  FaChartLine,
+} from "react-icons/fa";
 
 ChartJS.register(
   ArcElement,
@@ -57,11 +63,13 @@ interface BarangayCalamityData {
 }
 
 // Update the color generation function for in-kind items
-const generateInKindColors = (data: Array<{
-  calamityType: string;
-  mostRequestedItem: string;
-  count: number;
-}>) => {
+const generateInKindColors = (
+  data: Array<{
+    calamityType: string;
+    mostRequestedItem: string;
+    count: number;
+  }>
+) => {
   const colors = [
     "rgba(255, 99, 132, 0.8)", // Red
     "rgba(54, 162, 235, 0.8)", // Blue
@@ -430,188 +438,6 @@ export default function AnalyticsPage() {
     );
   };
 
-  const BarModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-6 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">Impact by Barangay Details</h3>
-          <button
-            onClick={() => setShowBarModal(false)}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Chart Container with fixed height */}
-          <div className="flex flex-col items-center justify-center">
-            <div className="h-[400px] w-full">
-              <Bar
-                data={barChartData}
-                options={{
-                  ...barChartOptions,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    ...barChartOptions.plugins,
-                    legend: { display: false },
-                  },
-                }}
-                plugins={[
-                  {
-                    id: "shadowPlugin",
-                    beforeDraw: (chart: any) => {
-                      const { ctx } = chart;
-                      ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
-                      ctx.shadowBlur = 15;
-                      ctx.shadowOffsetX = 5;
-                      ctx.shadowOffsetY = 5;
-                    },
-                  },
-                ]}
-              />
-            </div>
-            {/* Add legend below the chart */}
-            <div className="mt-4 px-4 py-3 bg-gray-50 rounded-xl w-full">
-              {renderBarangayLegend()}
-            </div>
-          </div>
-
-          {/* Table Container */}
-          <div className="flex flex-col">
-            <div className="overflow-y-auto">
-              <table className="w-full text-left">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-2">Barangay</th>
-                    <th className="px-4 py-2">Most Impacted By</th>
-                    <th className="px-4 py-2">Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {calamityImpactData.map((item) => (
-                    <tr key={item.calamityType} className="border-b">
-                      <td className="px-4 py-2">
-                        {item.mostImpactedBarangay.name}
-                      </td>
-                      <td className="px-4 py-2">{item.calamityType}</td>
-                      <td className="px-4 py-2">
-                        {item.mostImpactedBarangay.count}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const HorizontalBarModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-6 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h3 className="text-xl font-bold">
-              Barangay Calamity Analysis Details
-            </h3>
-            <p className="text-sm font-medium text-gray-600 mt-1 shadow-sm">
-              Most requested calamity type per barangay
-            </p>
-          </div>
-          <button
-            onClick={() => setShowHorizontalBarModal(false)}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="flex flex-col items-center justify-center">
-            <div className="h-[400px] w-full">
-              <Bar
-                data={horizontalBarData}
-                options={{
-                  ...horizontalBarOptions,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    ...horizontalBarOptions.plugins,
-                    legend: { display: false },
-                  },
-                }}
-                plugins={[
-                  {
-                    id: "shadowPlugin",
-                    beforeDraw: (chart: Chart) => {
-                      const { ctx } = chart;
-                      ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
-                      ctx.shadowBlur = 15;
-                      ctx.shadowOffsetX = 5;
-                      ctx.shadowOffsetY = 5;
-                    },
-                  },
-                ]}
-              />
-            </div>
-            <div className="mt-4 px-4 py-3 bg-gray-50 rounded-xl w-full">
-              {renderCalamityLegend()}
-            </div>
-          </div>
-          <div>
-            <table className="w-full text-left">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2">Barangay</th>
-                  <th className="px-4 py-2">Most Requested Items</th>
-                  <th className="px-4 py-2">Count</th>
-                </tr>
-              </thead>
-              <tbody>
-                {barangayCalamityData.map((item) => (
-                  <tr key={item.barangayName} className="border-b">
-                    <td className="px-4 py-2">{item.barangayName}</td>
-                    <td className="px-4 py-2">
-                      {item.mostRequestedCalamity.type}
-                    </td>
-                    <td className="px-4 py-2">
-                      {item.mostRequestedCalamity.count}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   // Update the inKindBarData configuration to use consistent colors
   const inKindBarData = {
     labels: inKindByCalamityData?.map((item) => item.calamityType) || [],
@@ -699,90 +525,6 @@ export default function AnalyticsPage() {
     );
   };
 
-  const InKindModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-6 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">In-Kind Necessities Details</h3>
-          <button
-            onClick={() => setShowInKindModal(false)}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Chart Container */}
-          <div className="flex flex-col items-center justify-center">
-            <div className="h-[400px] w-full">
-              <Bar
-                data={inKindBarData}
-                options={{
-                  ...inKindBarOptions,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    ...inKindBarOptions.plugins,
-                    legend: { display: false },
-                  },
-                }}
-                plugins={[
-                  {
-                    id: "shadowPlugin",
-                    beforeDraw: (chart: any) => {
-                      const { ctx } = chart;
-                      ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
-                      ctx.shadowBlur = 15;
-                      ctx.shadowOffsetX = 5;
-                      ctx.shadowOffsetY = 5;
-                    },
-                  },
-                ]}
-              />
-            </div>
-            <div className="mt-4 px-4 py-3 bg-gray-50 rounded-xl w-full">
-              {renderInKindLegend()}
-            </div>
-          </div>
-
-          {/* Table Container */}
-          <div>
-            <table className="w-full text-left">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2">Calamity Type</th>
-                  <th className="px-4 py-2">Most Requested Item</th>
-                  <th className="px-4 py-2">Count</th>
-                </tr>
-              </thead>
-              <tbody>
-                {inKindByCalamityData.map((item) => (
-                  <tr key={item.calamityType} className="border-b">
-                    <td className="px-4 py-2">{item.calamityType}</td>
-                    <td className="px-4 py-2">{item.mostRequestedItem}</td>
-                    <td className="px-4 py-2">{item.count}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -792,24 +534,24 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-emerald-50/50 p-8">
-      {/* Main flex container */}
-      <div className="flex gap-8">
-        {/* Left side - Main dashboard content (4/5) */}
-        <div className="flex-[4]">
-          {/* Header with Dashboard title and filters */}
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">
-              Dashboard
-            </h1>
+    <div className="min-h-screen bg-emerald-50/50 p-4 md:p-8">
+      {/* Main dashboard content */}
+      <div className="flex flex-col gap-4 md:gap-8">
+        {/* Header with Dashboard title and filters */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">
+            Dashboard
+          </h1>
 
-            <div className="bg-gradient-to-r from-emerald-100 to-green-100 rounded-2xl shadow-md p-1.5">
-              <div className="inline-flex gap-1">
+          {/* Fixed width select container */}
+          <div className="flex justify-center sm:justify-end w-full sm:w-auto">
+            <div className="inline-flex bg-gradient-to-r from-emerald-100 to-green-100 rounded-2xl shadow-md p-1.5">
+              <div className="flex justify-center gap-1">
                 {["monthly", "quarterly", "yearly"].map((type) => (
                   <button
                     key={type}
                     className={`
-                      px-5 py-2 text-sm font-medium rounded-xl
+                      px-3 md:px-5 py-2 text-sm font-medium rounded-xl whitespace-nowrap
                       transition-all duration-300 ease-in-out
                       ${
                         timeFilter.type === type
@@ -827,210 +569,191 @@ export default function AnalyticsPage() {
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Charts Grid */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-            {/* In-Kind Necessities Chart */}
-            <div className="xl:col-span-1">
-              <div
-                className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 h-full"
-                onClick={() => setShowInKindModal(true)}
-              >
-                <h2 className="text-xl font-semibold text-gray-800 mb-6">
-                  Most Requested Items by Calamity in your Barangay
-                </h2>
-                <div className="flex flex-col items-center justify-center">
-                  <div className="h-[400px] w-full">
-                    {loading ? (
-                      <div className="flex items-center justify-center h-full">
-                        <div className="loading loading-spinner loading-lg text-primary"></div>
-                      </div>
-                    ) : inKindByCalamityData?.length > 0 ? (
-                      <Bar
-                        data={inKindBarData}
-                        options={{
-                          ...inKindBarOptions,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            ...inKindBarOptions.plugins,
-                            legend: { display: false },
-                          },
-                        }}
-                        plugins={[
-                          {
-                            id: "shadowPlugin",
-                            beforeDraw: (chart: any) => {
-                              const { ctx } = chart;
-                              ctx.shadowColor = "rgba(0, 0, 0, 0.05)";
-                              ctx.shadowBlur = 10;
-                              ctx.shadowOffsetX = 4;
-                              ctx.shadowOffsetY = 4;
-                            },
-                          },
-                        ]}
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full">
-                        <p className="text-gray-500">No data available</p>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-6 px-6 py-4 bg-gray-50 rounded-xl w-full">
-                    {renderInKindLegend()}
-                  </div>
+        {/* Stats boxes moved below header */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+          {/* Total Requests Box */}
+          <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl shadow-lg p-4 md:p-6 hover:shadow-xl transition-all duration-300 border border-emerald-100/50 group">
+            <div className="flex items-start justify-between">
+              <div className="flex flex-col">
+                <h3 className="text-sm font-medium text-emerald-600 mb-1">
+                  Total Requests
+                </h3>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-4xl font-bold text-gray-800 group-hover:text-emerald-700 transition-colors">
+                    {totalRequests || 0}
+                  </p>
+                  <span className="text-xs text-emerald-600/70">all time</span>
                 </div>
+              </div>
+              <div className="bg-emerald-500/10 p-3 rounded-xl group-hover:bg-emerald-500/20 transition-colors">
+                <FaClipboardList className="w-6 h-6 text-emerald-600" />
               </div>
             </div>
-
-            {/* Impact by Barangay Chart */}
-            <div className="xl:col-span-1">
+            <div className="mt-4 bg-emerald-100/50 h-1 rounded-full overflow-hidden">
               <div
-                className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 h-full"
-                onClick={() => setShowBarModal(true)}
-              >
-                <h2 className="text-xl font-semibold text-gray-800 mb-6">
-                  Impact by Barangay
-                </h2>
-                <div className="flex flex-col items-center justify-center">
-                  <div className="h-[400px] w-full">
-                    <Bar
-                      data={barChartData}
-                      options={{
-                        ...barChartOptions,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          ...barChartOptions.plugins,
-                          legend: { display: false },
-                        },
-                      }}
-                      plugins={[
-                        {
-                          id: "shadowPlugin",
-                          beforeDraw: (chart: any) => {
-                            const { ctx } = chart;
-                            ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
-                            ctx.shadowBlur = 15;
-                            ctx.shadowOffsetX = 5;
-                            ctx.shadowOffsetY = 5;
-                          },
-                        },
-                      ]}
-                    />
-                  </div>
-                  <div className="mt-4 px-4 py-3 bg-gray-50 rounded-xl w-full">
-                    {renderBarangayLegend()}
-                  </div>
+                className="h-full bg-gradient-to-r from-emerald-500 to-green-500 rounded-full"
+                style={{ width: "100%" }}
+              />
+            </div>
+          </div>
+
+          {/* New Requests Box */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg p-4 md:p-6 hover:shadow-xl transition-all duration-300 border border-blue-100/50 group">
+            <div className="flex items-start justify-between">
+              <div className="flex flex-col">
+                <h3 className="text-sm font-medium text-blue-600 mb-1">
+                  New Requests
+                </h3>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-4xl font-bold text-gray-800 group-hover:text-blue-700 transition-colors">
+                    {newRequests || 0}
+                  </p>
+                  <span className="text-xs text-blue-600/70">
+                    last 24 hours
+                  </span>
                 </div>
+              </div>
+              <div className="bg-blue-500/10 p-3 rounded-xl group-hover:bg-blue-500/20 transition-colors">
+                <FaBell className="w-6 h-6 text-blue-600" />
               </div>
             </div>
-
-            {/* Horizontal Bar Chart - Full Width */}
-            <div className="xl:col-span-2">
+            <div className="mt-4 bg-blue-100/50 h-1 rounded-full overflow-hidden">
               <div
-                className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100"
-                onClick={() => setShowHorizontalBarModal(true)}
-              >
-                <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                  Barangay Calamity Analysis
-                </h2>
-                <p className="text-sm font-medium text-gray-600 mb-6 text-center shadow-sm">
-                  Most requested calamity type per barangay
-                </p>
-                <div className="flex flex-col items-center justify-center">
-                  <div className="h-[400px] w-full">
-                    <Bar
-                      data={horizontalBarData}
-                      options={{
-                        ...horizontalBarOptions,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          ...horizontalBarOptions.plugins,
-                          legend: { display: false },
-                        },
-                      }}
-                      plugins={[
-                        {
-                          id: "shadowPlugin",
-                          beforeDraw: (chart: any) => {
-                            const { ctx } = chart;
-                            ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
-                            ctx.shadowBlur = 15;
-                            ctx.shadowOffsetX = 5;
-                            ctx.shadowOffsetY = 5;
-                          },
-                        },
-                      ]}
-                    />
-                  </div>
-                  <div className="mt-4 px-4 py-3 bg-gray-50 rounded-xl w-full">
-                    {renderCalamityLegend()}
-                  </div>
-                </div>
-              </div>
+                className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
+                style={{
+                  width: `${(newRequests / totalRequests) * 100}%`,
+                }}
+              />
             </div>
           </div>
         </div>
 
-        {/* Right side - Stats boxes (1/5) */}
-        <div className="flex-1">
-          <div className="sticky top-8 space-y-6">
-            {/* Total Requests Box */}
-            <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border border-emerald-100/50 group">
-              <div className="flex items-start justify-between">
-                <div className="flex flex-col">
-                  <h3 className="text-sm font-medium text-emerald-600 mb-1">
-                    Total Requests
-                  </h3>
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-4xl font-bold text-gray-800 group-hover:text-emerald-700 transition-colors">
-                      {totalRequests || 0}
-                    </p>
-                    <span className="text-xs text-emerald-600/70">
-                      all time
-                    </span>
-                  </div>
-                </div>
-                <div className="bg-emerald-500/10 p-3 rounded-xl group-hover:bg-emerald-500/20 transition-colors">
-                  <FaClipboardList className="w-6 h-6 text-emerald-600" />
-                </div>
-              </div>
-              {/* Progress indicator */}
-              <div className="mt-4 bg-emerald-100/50 h-1 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-500 to-green-500 rounded-full"
-                  style={{ width: "100%" }}
+        {/* Charts Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-8">
+          {/* In-Kind Chart Card */}
+          <div
+            className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all cursor-pointer"
+            onClick={() => setShowInKindModal(true)}
+          >
+            <div className="card-body">
+              <h2 className="card-title flex justify-between">
+                Most Requested Items by Calamity
+                <FaChartBar className="w-5 h-5 opacity-70" />
+              </h2>
+              <div className="h-[300px] w-full">
+                <Bar
+                  data={inKindBarData}
+                  options={{
+                    ...inKindBarOptions,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      ...inKindBarOptions.plugins,
+                      legend: { display: false },
+                    },
+                  }}
+                  plugins={[
+                    {
+                      id: "shadowPlugin",
+                      beforeDraw: (chart: any) => {
+                        const { ctx } = chart;
+                        ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
+                        ctx.shadowBlur = 15;
+                        ctx.shadowOffsetX = 5;
+                        ctx.shadowOffsetY = 5;
+                      },
+                    },
+                  ]}
                 />
+              </div>
+              <div className="mt-4 px-4 py-3 bg-base-200 rounded-xl">
+                {renderInKindLegend()}
               </div>
             </div>
+          </div>
 
-            {/* New Requests Box */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border border-blue-100/50 group">
-              <div className="flex items-start justify-between">
-                <div className="flex flex-col">
-                  <h3 className="text-sm font-medium text-blue-600 mb-1">
-                    New Requests
-                  </h3>
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-4xl font-bold text-gray-800 group-hover:text-blue-700 transition-colors">
-                      {newRequests || 0}
-                    </p>
-                    <span className="text-xs text-blue-600/70">
-                      last 24 hours
-                    </span>
-                  </div>
-                </div>
-                <div className="bg-blue-500/10 p-3 rounded-xl group-hover:bg-blue-500/20 transition-colors">
-                  <FaBell className="w-6 h-6 text-blue-600" />
-                </div>
-              </div>
-              {/* Progress indicator */}
-              <div className="mt-4 bg-blue-100/50 h-1 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
-                  style={{
-                    width: `${(newRequests / totalRequests) * 100}%`,
+          {/* Impact Chart Card */}
+          <div
+            className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all cursor-pointer"
+            onClick={() => setShowBarModal(true)}
+          >
+            <div className="card-body">
+              <h2 className="card-title flex justify-between">
+                Impact by Barangay
+                <FaChartPie className="w-5 h-5 opacity-70" />
+              </h2>
+              <div className="h-[300px] w-full">
+                <Bar
+                  data={barChartData}
+                  options={{
+                    ...barChartOptions,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      ...barChartOptions.plugins,
+                      legend: { display: false },
+                    },
                   }}
+                  plugins={[
+                    {
+                      id: "shadowPlugin",
+                      beforeDraw: (chart: any) => {
+                        const { ctx } = chart;
+                        ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
+                        ctx.shadowBlur = 15;
+                        ctx.shadowOffsetX = 5;
+                        ctx.shadowOffsetY = 5;
+                      },
+                    },
+                  ]}
                 />
+              </div>
+              <div className="mt-4 px-4 py-3 bg-base-200 rounded-xl">
+                {renderBarangayLegend()}
+              </div>
+            </div>
+          </div>
+
+          {/* Horizontal Bar Chart Card */}
+          <div
+            className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all cursor-pointer xl:col-span-2"
+            onClick={() => setShowHorizontalBarModal(true)}
+          >
+            <div className="card-body">
+              <h2 className="card-title flex justify-between">
+                Barangay Calamity Analysis
+                <FaChartLine className="w-5 h-5 opacity-70" />
+              </h2>
+              <p className="text-sm opacity-70">
+                Most requested calamity type per barangay
+              </p>
+              <div className="h-[400px] w-full">
+                <Bar
+                  data={horizontalBarData}
+                  options={{
+                    ...horizontalBarOptions,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      ...horizontalBarOptions.plugins,
+                      legend: { display: false },
+                    },
+                  }}
+                  plugins={[
+                    {
+                      id: "shadowPlugin",
+                      beforeDraw: (chart: any) => {
+                        const { ctx } = chart;
+                        ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
+                        ctx.shadowBlur = 15;
+                        ctx.shadowOffsetX = 5;
+                        ctx.shadowOffsetY = 5;
+                      },
+                    },
+                  ]}
+                />
+              </div>
+              <div className="mt-4 px-4 py-3 bg-base-200 rounded-xl">
+                {renderCalamityLegend()}
               </div>
             </div>
           </div>
@@ -1038,9 +761,176 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Modals */}
-      {showBarModal && <BarModal />}
-      {showHorizontalBarModal && <HorizontalBarModal />}
-      {showInKindModal && <InKindModal />}
+      {/* Bar Chart Modal */}
+      <dialog
+        id="bar_modal"
+        className={`modal ${showBarModal ? "modal-open" : ""}`}
+      >
+        <div className="modal-box w-11/12 max-w-5xl">
+          <form method="dialog">
+            <button
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+              onClick={() => setShowBarModal(false)}
+            >
+              ✕
+            </button>
+          </form>
+          <h3 className="font-bold text-lg mb-4 px-5 pt-5">Impact by Barangay Details</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-5">
+            <div className="flex flex-col items-center justify-center">
+              <div className="h-[400px] w-full">
+                <Bar
+                  data={barChartData}
+                  options={{ ...barChartOptions, maintainAspectRatio: false }}
+                />
+              </div>
+              <div className="mt-4 px-4 py-3 bg-base-200 rounded-xl w-full">
+                {renderBarangayLegend()}
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="table table-zebra w-full">
+                <thead>
+                  <tr>
+                    <th>Barangay</th>
+                    <th>Most Impacted By</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {calamityImpactData.map((item) => (
+                    <tr key={item.calamityType}>
+                      <td>{item.mostImpactedBarangay.name}</td>
+                      <td>{item.calamityType}</td>
+                      <td>{item.mostImpactedBarangay.count}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button onClick={() => setShowBarModal(false)}>close</button>
+        </form>
+      </dialog>
+
+      {/* Horizontal Bar Chart Modal */}
+      <dialog
+        id="horizontal_bar_modal"
+        className={`modal ${showHorizontalBarModal ? "modal-open" : ""}`}
+      >
+        <div className="modal-box w-11/12 max-w-5xl">
+          <form method="dialog">
+            <button
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+              onClick={() => setShowHorizontalBarModal(false)}
+            >
+              ✕
+            </button>
+          </form>
+          <h3 className="font-bold text-lg mb-4 px-5 pt-5">
+            Barangay Calamity Analysis Details
+          </h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-5">
+            <div className="flex flex-col items-center justify-center">
+              <div className="h-[400px] w-full">
+                <Bar
+                  data={horizontalBarData}
+                  options={{
+                    ...horizontalBarOptions,
+                    maintainAspectRatio: false,
+                  }}
+                />
+              </div>
+              <div className="mt-4 px-4 py-3 bg-base-200 rounded-xl w-full">
+                {renderCalamityLegend()}
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="table table-zebra w-full">
+                <thead>
+                  <tr>
+                    <th>Barangay</th>
+                    <th>Most Requested Calamity</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {barangayCalamityData.map((item) => (
+                    <tr key={item.barangayName}>
+                      <td>{item.barangayName}</td>
+                      <td>{item.mostRequestedCalamity.type}</td>
+                      <td>{item.mostRequestedCalamity.count}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button onClick={() => setShowHorizontalBarModal(false)}>
+            close
+          </button>
+        </form>
+      </dialog>
+
+      {/* In-Kind Modal */}
+      <dialog
+        id="in_kind_modal"
+        className={`modal ${showInKindModal ? "modal-open" : ""}`}
+      >
+        <div className="modal-box w-11/12 max-w-5xl">
+          <form method="dialog">
+            <button
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+              onClick={() => setShowInKindModal(false)}
+            >
+              ✕
+            </button>
+          </form>
+          <h3 className="font-bold text-lg mb-4 px-5 pt-5">
+            In-Kind Necessities Analysis
+          </h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-5">
+            <div className="flex flex-col items-center justify-center">
+              <div className="h-[400px] w-full">
+                <Bar
+                  data={inKindBarData}
+                  options={{ ...inKindBarOptions, maintainAspectRatio: false }}
+                />
+              </div>
+              <div className="mt-4 px-4 py-3 bg-base-200 rounded-xl w-full">
+                {renderInKindLegend()}
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="table table-zebra w-full">
+                <thead>
+                  <tr>
+                    <th>Calamity Type</th>
+                    <th>Most Requested Item</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {inKindByCalamityData.map((item) => (
+                    <tr key={item.calamityType}>
+                      <td>{item.calamityType}</td>
+                      <td>{item.mostRequestedItem}</td>
+                      <td>{item.count}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button onClick={() => setShowInKindModal(false)}>close</button>
+        </form>
+      </dialog>
     </div>
   );
 }
