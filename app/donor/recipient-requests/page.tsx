@@ -37,20 +37,22 @@ export default function RecipientRequests() {
   const fetchPosts = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/posts?type=recipient&page=${page}`);
+      setError(null);
+      const response = await fetch(`/api/posts?type=recipient&page=${page}&limit=10`);
       if (!response.ok) {
         throw new Error("Failed to fetch posts");
       }
       const data = await response.json();
 
       setPosts((prevPosts) => {
+        if (page === 1) return data.posts;
         const newPosts = data.posts.filter(
           (post: RecipientRequests) => !prevPosts.some((p) => p.id === post.id)
         );
         return [...prevPosts, ...newPosts];
       });
 
-      setHasMore(data.hasMore);
+      setHasMore(data.posts.length > 0 && data.hasMore);
 
       const initialLikedPosts = new Set(
         data.posts
@@ -126,10 +128,14 @@ export default function RecipientRequests() {
       );
       if (response.ok) {
         const newCommentData = await response.json();
+        
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
             post.id === postId
-              ? { ...post, comments: [...post.comments, newCommentData] }
+              ? { 
+                  ...post, 
+                  comments: [...post.comments, newCommentData]
+                }
               : post
           )
         );
@@ -170,7 +176,7 @@ export default function RecipientRequests() {
           />
         </Suspense>
         {isLoading && <PostSkeleton count={3} />}
-        {error && <p>{error}</p>}
+        {error && <p className="text-red-500 text-center">{error}</p>}
       </div>
 
       {selectedPost && (

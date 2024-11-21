@@ -11,13 +11,12 @@ export default function Footer() {
           height={48}
           className="max-w-12"
         />
-        <div className="flex flex-col text-center">
-          <div>
+        <div className="flex flex-col items-center text-center">
+          <div className="mb-2 sm:mb-0">
             <span className="text-primary font-bold">HIRAYA</span>
             <span className="font-bold">LINK</span>
           </div>
-          <br className="sm:hidden" />
-          <span className="sm:ml-1">
+          <span className="text-sm sm:text-base">
             Copyright © {new Date().getFullYear()} - All right reserved
           </span>
         </div>

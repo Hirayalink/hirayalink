@@ -98,6 +98,18 @@ const generateInKindColors = (
   return data.map((item) => colorMap.get(item.mostRequestedItem));
 };
 
+// Update interface to match our age group structure
+interface AgeGroupData {
+  calamityType: string;
+  ageGroups: {
+    infant: number;      // ageGroupInfant
+    earlyChild: number;  // ageGroupEarlyChild
+    middleChild: number; // ageGroupMiddleChild
+    adolescent: number;  // ageGroupAdolescent
+    adult: number;       // derived from total - children
+  };
+}
+
 export default function AnalyticsPage() {
   const [calamityData, setCalamityData] = useState<CalamityCount[]>([]);
   const [calamityImpactData, setCalamityImpactData] = useState<
@@ -124,6 +136,8 @@ export default function AnalyticsPage() {
   const [showInKindModal, setShowInKindModal] = useState(false);
   const [totalRequests, setTotalRequests] = useState(0);
   const [newRequests, setNewRequests] = useState(0);
+  const [ageGroupData, setAgeGroupData] = useState<AgeGroupData[]>([]);
+  const [showAgeGroupModal, setShowAgeGroupModal] = useState(false);
 
   const handleTimeFilterChange = (filterType: TimeFilter["type"]) => {
     const now = new Date();
@@ -212,6 +226,45 @@ export default function AnalyticsPage() {
         setBarangayCalamityData(data.barangayCalamityData);
         setTotalRequests(data.totalRequests);
         setNewRequests(data.newRequestsCount);
+
+        // Process age group data from recipient requests
+        if (data.recipientRequests) {
+          const ageGroupsByCalamity: { [key: string]: AgeGroupData['ageGroups'] } = {};
+          
+          data.recipientRequests.forEach((request: any) => {
+            if (!ageGroupsByCalamity[request.typeOfCalamity]) {
+              ageGroupsByCalamity[request.typeOfCalamity] = {
+                infant: 0,
+                earlyChild: 0,
+                middleChild: 0,
+                adolescent: 0,
+                adult: 0
+              };
+            }
+            
+            const groups = ageGroupsByCalamity[request.typeOfCalamity];
+            groups.infant += request.ageGroupInfant || 0;
+            groups.earlyChild += request.ageGroupEarlyChild || 0;
+            groups.middleChild += request.ageGroupMiddleChild || 0;
+            groups.adolescent += request.ageGroupAdolescent || 0;
+            // Calculate adults (total family members minus children)
+            const totalChildren = (request.ageGroupInfant || 0) +
+              (request.ageGroupEarlyChild || 0) +
+              (request.ageGroupMiddleChild || 0) +
+              (request.ageGroupAdolescent || 0);
+            groups.adult += request.noOfFamilyMembers - totalChildren;
+          });
+
+          const processedAgeGroupData = Object.entries(ageGroupsByCalamity).map(
+            ([calamityType, ageGroups]) => ({
+              calamityType,
+              ageGroups
+            })
+          );
+
+          setAgeGroupData(processedAgeGroupData);
+        }
+        
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -525,6 +578,89 @@ export default function AnalyticsPage() {
     );
   };
 
+  // Update chart configuration to match our age groups
+  const ageGroupChartData = {
+    labels: ageGroupData.map(item => item.calamityType),
+    datasets: [
+      {
+        label: 'Infants (0-1)',
+        data: ageGroupData.map(item => item.ageGroups.infant),
+        backgroundColor: 'rgba(255, 99, 132, 0.8)',
+        borderRadius: 6,
+      },
+      {
+        label: 'Early Childhood (2-6)',
+        data: ageGroupData.map(item => item.ageGroups.earlyChild),
+        backgroundColor: 'rgba(54, 162, 235, 0.8)',
+        borderRadius: 6,
+      },
+      {
+        label: 'Middle Childhood (7-11)',
+        data: ageGroupData.map(item => item.ageGroups.middleChild),
+        backgroundColor: 'rgba(255, 206, 86, 0.8)',
+        borderRadius: 6,
+      },
+      {
+        label: 'Adolescent (12-17)',
+        data: ageGroupData.map(item => item.ageGroups.adolescent),
+        backgroundColor: 'rgba(75, 192, 192, 0.8)',
+        borderRadius: 6,
+      },
+      {
+        label: 'Adults (18+)',
+        data: ageGroupData.map(item => item.ageGroups.adult),
+        backgroundColor: 'rgba(153, 102, 255, 0.8)',
+        borderRadius: 6,
+      },
+    ],
+  };
+
+  const ageGroupChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: "Age Groups Impact Analysis",
+        font: {
+          size: 16,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: any) => {
+            const dataIndex = context.dataIndex;
+            const ageGroup = ageGroupData[dataIndex];
+            return `${ageGroup.calamityType}: ${ageGroup.ageGroups.infant} infants, ${ageGroup.ageGroups.earlyChild} early children, ${ageGroup.ageGroups.middleChild} middle children, ${ageGroup.ageGroups.adolescent} adolescents, ${ageGroup.ageGroups.adult} adults`;
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: "Calamity Type",
+        },
+      },
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: "Number of People",
+        },
+      },
+    },
+    elements: {
+      bar: {
+        borderWidth: 0,
+        borderRadius: 6,
+      },
+    },
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -757,6 +893,41 @@ export default function AnalyticsPage() {
               </div>
             </div>
           </div>
+
+          {/* Age Groups Chart Card */}
+          <div 
+            className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all cursor-pointer xl:col-span-2"
+            onClick={() => setShowAgeGroupModal(true)}
+          >
+            <div className="card-body">
+              <h2 className="card-title flex justify-between">
+                Age Groups Impact Analysis
+                <FaChartBar className="w-5 h-5 opacity-70" />
+              </h2>
+              <p className="text-sm opacity-70">Distribution of age groups affected by each calamity type</p>
+              <div className="h-[400px] w-full">
+                <Bar
+                  data={ageGroupChartData}
+                  options={{
+                    ...ageGroupChartOptions,
+                    maintainAspectRatio: false,
+                  }}
+                  plugins={[
+                    {
+                      id: "shadowPlugin",
+                      beforeDraw: (chart: any) => {
+                        const { ctx } = chart;
+                        ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
+                        ctx.shadowBlur = 15;
+                        ctx.shadowOffsetX = 5;
+                        ctx.shadowOffsetY = 5;
+                      },
+                    },
+                  ]}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -766,7 +937,7 @@ export default function AnalyticsPage() {
         id="bar_modal"
         className={`modal ${showBarModal ? "modal-open" : ""}`}
       >
-        <div className="modal-box w-11/12 max-w-5xl">
+        <div className="modal-box w-11/12 max-w-5xl h-[90vh] flex flex-col">
           <form method="dialog">
             <button
               className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
@@ -775,38 +946,47 @@ export default function AnalyticsPage() {
               ✕
             </button>
           </form>
-          <h3 className="font-bold text-lg mb-4 px-5 pt-5">Impact by Barangay Details</h3>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-5">
-            <div className="flex flex-col items-center justify-center">
-              <div className="h-[400px] w-full">
-                <Bar
-                  data={barChartData}
-                  options={{ ...barChartOptions, maintainAspectRatio: false }}
-                />
+          <h3 className="font-bold text-lg px-5 pt-5">Impact by Barangay Details</h3>
+          
+          {/* Main content with responsive scrolling */}
+          <div className="flex-1 overflow-y-auto p-5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Chart section */}
+              <div className="flex flex-col min-h-[500px]">
+                <div className="h-[400px] w-full">
+                  <Bar
+                    data={barChartData}
+                    options={{ ...barChartOptions, maintainAspectRatio: false }}
+                  />
+                </div>
+                <div className="mt-4 px-4 py-3 bg-base-200 rounded-xl w-full">
+                  {renderBarangayLegend()}
+                </div>
               </div>
-              <div className="mt-4 px-4 py-3 bg-base-200 rounded-xl w-full">
-                {renderBarangayLegend()}
+
+              {/* Table section */}
+              <div className="flex flex-col">
+                <div className="lg:overflow-y-auto lg:max-h-[500px] rounded-lg border border-base-200">
+                  <table className="table table-zebra w-full">
+                    <thead className="sticky top-0 bg-base-100 shadow-sm">
+                      <tr>
+                        <th>Barangay</th>
+                        <th>Most Impacted By</th>
+                        <th>Count</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {calamityImpactData.map((item) => (
+                        <tr key={item.calamityType}>
+                          <td>{item.mostImpactedBarangay.name}</td>
+                          <td>{item.calamityType}</td>
+                          <td>{item.mostImpactedBarangay.count}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="table table-zebra w-full">
-                <thead>
-                  <tr>
-                    <th>Barangay</th>
-                    <th>Most Impacted By</th>
-                    <th>Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {calamityImpactData.map((item) => (
-                    <tr key={item.calamityType}>
-                      <td>{item.mostImpactedBarangay.name}</td>
-                      <td>{item.calamityType}</td>
-                      <td>{item.mostImpactedBarangay.count}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
@@ -929,6 +1109,110 @@ export default function AnalyticsPage() {
         </div>
         <form method="dialog" className="modal-backdrop">
           <button onClick={() => setShowInKindModal(false)}>close</button>
+        </form>
+      </dialog>
+
+      {/* Age Groups Modal */}
+      <dialog
+        id="age_group_modal"
+        className={`modal ${showAgeGroupModal ? "modal-open" : ""}`}
+      >
+        <div className="modal-box w-11/12 max-w-5xl h-[90vh] flex flex-col">
+          <form method="dialog">
+            <button
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+              onClick={() => setShowAgeGroupModal(false)}
+            >
+              ✕
+            </button>
+          </form>
+          <h3 className="font-bold text-lg px-5 pt-5">
+            Age Groups Impact Analysis Details
+          </h3>
+          
+          {/* Main content with responsive scrolling */}
+          <div className="flex-1 overflow-y-auto p-5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Chart section */}
+              <div className="flex flex-col min-h-[500px]">
+                <div className="h-[400px] w-full">
+                  <Bar
+                    data={ageGroupChartData}
+                    options={{
+                      ...ageGroupChartOptions,
+                      maintainAspectRatio: false,
+                    }}
+                  />
+                </div>
+                <div className="mt-4 px-4 py-3 bg-base-200 rounded-xl w-full">
+                  <div className="flex flex-wrap gap-4 justify-center">
+                    {ageGroupChartData.datasets.map((dataset) => (
+                      <div key={dataset.label} className="flex items-center">
+                        <div
+                          className="w-4 h-4 rounded-full mr-2"
+                          style={{ backgroundColor: dataset.backgroundColor }}
+                        />
+                        <span className="text-sm text-gray-700">{dataset.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Table section */}
+              <div className="flex flex-col">
+                <div className="lg:overflow-y-auto lg:max-h-[500px] rounded-lg border border-base-200">
+                  <table className="table table-zebra w-full">
+                    <thead className="sticky top-0 bg-base-100 shadow-sm">
+                      <tr>
+                        <th>Calamity Type</th>
+                        <th>Age Group</th>
+                        <th>Count</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ageGroupData.flatMap((item) => [
+                        {
+                          calamity: item.calamityType,
+                          ageGroup: 'Infants (0-1)',
+                          count: item.ageGroups.infant
+                        },
+                        {
+                          calamity: item.calamityType,
+                          ageGroup: 'Early Childhood (2-6)',
+                          count: item.ageGroups.earlyChild
+                        },
+                        {
+                          calamity: item.calamityType,
+                          ageGroup: 'Middle Childhood (7-11)',
+                          count: item.ageGroups.middleChild
+                        },
+                        {
+                          calamity: item.calamityType,
+                          ageGroup: 'Adolescent (12-17)',
+                          count: item.ageGroups.adolescent
+                        },
+                        {
+                          calamity: item.calamityType,
+                          ageGroup: 'Adults (18+)',
+                          count: item.ageGroups.adult
+                        }
+                      ]).map((row, index) => (
+                        <tr key={`${row.calamity}-${row.ageGroup}`}>
+                          <td>{row.calamity}</td>
+                          <td>{row.ageGroup}</td>
+                          <td>{row.count}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button onClick={() => setShowAgeGroupModal(false)}>close</button>
         </form>
       </dialog>
     </div>

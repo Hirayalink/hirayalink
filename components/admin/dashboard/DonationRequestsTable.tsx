@@ -10,6 +10,13 @@ interface Request {
   dateTime: string;
   inKindNecessities: string;
   specifications: string;
+  age: number;
+  noOfFamilyMembers: number;
+  numberOfChildren: number | null;
+  ageGroupInfant: number | null;
+  ageGroupEarlyChild: number | null;
+  ageGroupMiddleChild: number | null;
+  ageGroupAdolescent: number | null;
 }
 
 const calamityTypes = [
@@ -481,6 +488,24 @@ const DonationRequestsTable = () => {
                 <span className="font-semibold">Date:</span>{" "}
                 {new Date(selectedRequest.dateTime).toLocaleDateString()}
               </p>
+              <div>
+                <span className="font-semibold">Demographic Information:</span>
+                <div className="ml-4 mt-2 space-y-1">
+                  <p>Age of Requestor: {selectedRequest.age}</p>
+                  <p>Total Family Members: {selectedRequest.noOfFamilyMembers}</p>
+                  <p>Number of Children: {selectedRequest.numberOfChildren || 0}</p>
+                  
+                  <div className="mt-2">
+                    <p className="font-medium">Age Group Distribution:</p>
+                    <div className="ml-4">
+                      <p>Infants: {selectedRequest.ageGroupInfant || 0}</p>
+                      <p>Early Childhood: {selectedRequest.ageGroupEarlyChild || 0}</p>
+                      <p>Middle Childhood: {selectedRequest.ageGroupMiddleChild || 0}</p>
+                      <p>Adolescents: {selectedRequest.ageGroupAdolescent || 0}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </dialog>

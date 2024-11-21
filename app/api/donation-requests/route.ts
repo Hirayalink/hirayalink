@@ -18,6 +18,24 @@ interface RequestData extends BarangayData {
   area: string;
   inKindNecessities: string;
   specifications: string;
+  age: number;
+  noOfFamilyMembers: number;
+  numberOfChildren: number | null;
+  ageGroupInfant: number | null;
+  ageGroupEarlyChild: number | null;
+  ageGroupMiddleChild: number | null;
+  ageGroupAdolescent: number | null;
+}
+
+interface AgeGroupData {
+  calamityType: string;
+  ageGroups: {
+    infant: number;
+    earlyChild: number;
+    middleChild: number;
+    adolescent: number;
+    adult: number;
+  };
 }
 
 export async function GET(request: Request) {
@@ -84,6 +102,13 @@ export async function GET(request: Request) {
         dateTime: true,
         inKindNecessities: true,
         specifications: true,
+        age: true,
+        noOfFamilyMembers: true,
+        numberOfChildren: true,
+        ageGroupInfant: true,
+        ageGroupEarlyChild: true,
+        ageGroupMiddleChild: true,
+        ageGroupAdolescent: true,
         Barangay: {
           select: {
             name: true,
@@ -113,7 +138,26 @@ export async function GET(request: Request) {
     const calamityImpact = processCalamityImpact(allBarangaysData);
     const barangayCalamityData =
       processBarangayMostRequestedCalamity(allBarangaysData);
-    const inKindByCalamityData = processInKindByCalamity(requests);
+    const inKindByCalamityData = processInKindByCalamity(
+      requests as unknown as RequestData[]
+    );
+
+    const recipientRequests = await prisma.recipientRequestPost.findMany({
+      where: {
+        ...timeFilter,
+        barangayId: barangay?.id,
+      },
+      select: {
+        typeOfCalamity: true,
+        noOfFamilyMembers: true,
+        ageGroupInfant: true,
+        ageGroupEarlyChild: true,
+        ageGroupMiddleChild: true,
+        ageGroupAdolescent: true,
+      },
+    });
+
+    const ageGroupData = processAgeGroupData(requests as RequestData[]);
 
     return NextResponse.json({
       requests,
@@ -124,6 +168,8 @@ export async function GET(request: Request) {
       totalPages: Math.ceil(totalRequests / limitNumber),
       totalRequests,
       newRequestsCount,
+      recipientRequests,
+      ageGroupData,
     });
   } catch (error) {
     console.error("Error fetching requests:", error);
@@ -150,9 +196,9 @@ function processCalamityImpact(data: BarangayData[]) {
   });
 
   return Array.from(impactMap.entries()).map(([calamityType, barangayMap]) => {
-    const [mostImpacted] = Array.from(
-      barangayMap.entries()
-    ).sort((a, b) => b[1] - a[1]) as [string, number][];
+    const [mostImpacted] = Array.from(barangayMap.entries()).sort(
+      (a, b) => b[1] - a[1]
+    ) as [string, number][];
 
     return {
       calamityType,
@@ -181,9 +227,9 @@ function processBarangayMostRequestedCalamity(data: BarangayData[]) {
 
   return Array.from(barangayMap.entries()).map(
     ([barangayName, calamityMap]) => {
-      const [mostRequested] = Array.from(
-        calamityMap.entries()
-      ).sort((a, b) => b[1] - a[1]) as [string, number][];
+      const [mostRequested] = Array.from(calamityMap.entries()).sort(
+        (a, b) => b[1] - a[1]
+      ) as [string, number][];
 
       return {
         barangayName,
@@ -243,5 +289,51 @@ function processInKindByCalamity(data: RequestData[]) {
         count: mostRequested[1],
       };
     }
+  );
+}
+
+function processAgeGroupData(data: RequestData[]) {
+  const ageGroupsByCalamity = new Map<
+    string,
+    {
+      infant: number;
+      earlyChild: number;
+      middleChild: number;
+      adolescent: number;
+      adult: number;
+    }
+  >();
+
+  data.forEach((record) => {
+    if (!ageGroupsByCalamity.has(record.typeOfCalamity)) {
+      ageGroupsByCalamity.set(record.typeOfCalamity, {
+        infant: 0,
+        earlyChild: 0,
+        middleChild: 0,
+        adolescent: 0,
+        adult: 0,
+      });
+    }
+
+    const groups = ageGroupsByCalamity.get(record.typeOfCalamity)!;
+    groups.infant += record.ageGroupInfant || 0;
+    groups.earlyChild += record.ageGroupEarlyChild || 0;
+    groups.middleChild += record.ageGroupMiddleChild || 0;
+    groups.adolescent += record.ageGroupAdolescent || 0;
+
+    // Calculate adults (total family members minus children)
+    const totalChildren =
+      (record.ageGroupInfant || 0) +
+      (record.ageGroupEarlyChild || 0) +
+      (record.ageGroupMiddleChild || 0) +
+      (record.ageGroupAdolescent || 0);
+    groups.adult += record.noOfFamilyMembers - totalChildren;
+  });
+
+  return Array.from(ageGroupsByCalamity.entries()).map(
+    ([calamityType, ageGroups]) => ({
+      calamityType,
+      ageGroups,
+    })
   );
 }
