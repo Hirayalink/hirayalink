@@ -61,9 +61,9 @@ export default function Login() {
 
   return (
     <main>
-      <div className="card bg-neutral text-neutral-content min-w-min max-w-3xl">
-        <div className="flex flex-row card-body">
-          <div className="flex flex-col items-center">
+      <div className="card bg-neutral text-neutral-content min-w-min max-w-3xl mx-auto px-4">
+        <div className="flex flex-col md:flex-row card-body">
+          <div className="flex flex-col items-center flex-1">
             <h1 className="card-title text-center text-2xl font-bold mb-4">
               LOGIN
             </h1>
@@ -89,9 +89,9 @@ export default function Login() {
                 Admin
               </button>
             </div>
-            <form onSubmit={handleSubmit}>
-              <div className="flex flex-row justify-center gap-4">
-                <div className="form-control mb-4">
+            <form onSubmit={handleSubmit} className="w-full max-w-md">
+              <div className="flex flex-col md:flex-row justify-center gap-4">
+                <div className="form-control mb-4 flex-1">
                   <label className="label">
                     <span className="label-text">Contact Number</span>
                   </label>
@@ -104,7 +104,7 @@ export default function Login() {
                   />
                 </div>
 
-                <div className="form-control mb-4">
+                <div className="form-control mb-4 flex-1">
                   <label className="label">
                     <span className="label-text">Password</span>
                   </label>
@@ -133,7 +133,9 @@ export default function Login() {
               </p>
             </form>
           </div>
-          <div className="divider divider-primary divider-horizontal">or</div>
+          
+          <div className="divider md:divider-horizontal divider-primary my-4 md:my-0">or</div>
+          
           <div className="flex flex-col items-center min-w-fit">
             <h1 className="card-title text-center text-2xl font-bold mb-4">
               REQUEST

@@ -36,6 +36,7 @@ interface BarangayRequestPost {
   barangay?: {
     name: string;
   };
+  batchNumber?: string;
 }
 
 export default function ManageDonationRequestPosts() {
@@ -139,6 +140,20 @@ export default function ManageDonationRequestPosts() {
     }
   };
 
+  const handleSelectAllForPost = (postId: string, select: boolean) => {
+    const donationIds = posts
+      .find(p => p.id === postId)
+      ?.donations
+      .filter(d => d.donationStatus !== "RECEIVED")
+      .map(d => d.id) || [];
+    
+    setSelectedDonations(prev => 
+      select 
+        ? Array.from(new Set([...prev, ...donationIds]))
+        : prev.filter(id => !donationIds.includes(id))
+    );
+  };
+
   if (status === "loading") return <Loading />;
   if (!session) return <div>Please log in to view this page</div>;
   if (session.user.userType !== "admin")
@@ -156,103 +171,209 @@ export default function ManageDonationRequestPosts() {
         </div>
       </div>
       <div className="container mx-auto p-4">
-        {posts.map((post) => (
+        {posts.map((post: BarangayRequestPost) => (
           <div
             key={post.id}
             className="mb-8 border rounded shadow overflow-hidden"
           >
-            <div className="bg-primary text-white p-4 flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Post ID: {post.id}</h2>
-              <p>{new Date(post.dateTime).toLocaleString()}</p>
-            </div>
-            <div className="p-4">
-              <div className="flex justify-between mb-4">
-                <h4 className="text-md font-semibold">Donations:</h4>
-                {selectedDonations.length > 0 &&
-                  // Check if any selected donations belong to this post
-                  selectedDonations.some((id) =>
-                    post.donations.some((d) => d.id === id)
-                  ) && (
-                    <button
-                      onClick={() => {
-                        setSelectedDonation(null);
-                        setIsViewingItems(false);
-                        setIsUpdateModalOpen(true);
-                      }}
-                      className="btn btn-primary btn-sm text-white"
-                    >
-                      Update Selected (
-                      {
-                        selectedDonations.filter((id) =>
-                          post.donations.some((d) => d.id === id)
-                        ).length
-                      }
-                      )
-                    </button>
-                  )}
+            <div className="bg-primary text-white p-4">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+                <h2 className="text-lg md:text-xl font-semibold">
+                  Post: {post.id.slice(-10)}...
+                </h2>
+                <p>{new Date(post.dateTime).toLocaleString()}</p>
               </div>
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="border p-2">Select</th>
-                    <th className="border p-2">Control Number</th>
-                    <th className="border p-2">Status</th>
-                    <th className="border p-2">Donor</th>
-                    <th className="border p-2">View</th>
-                  </tr>
-                </thead>
-                <tbody>
+            </div>
+
+            <div className="p-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 p-5 mb-5 bg-gray-50 rounded shadow-md">
+                <div>
+                  <span className="font-semibold block">Contact Person:</span>
+                  <span>{post.person || "N/A"}</span>
+                </div>
+                <div>
+                  <span className="font-semibold block">Contact Number:</span>
+                  <span>{post.contactNumber || "N/A"}</span>
+                </div>
+                <div>
+                  <span className="font-semibold block">Area:</span>
+                  <span>{post.area || "N/A"}</span>
+                </div>
+                <div>
+                  <span className="font-semibold block">Type of Calamity:</span>
+                  <span>{post.typeOfCalamity || "N/A"}</span>
+                </div>
+                <div>
+                  <span className="font-semibold block">Batch:</span>
+                  <span>{post.batchNumber || "N/A"}</span>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center mb-4">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const hasAllSelected = post.donations
+                      .filter(d => d.donationStatus !== "RECEIVED")
+                      .every(d => selectedDonations.includes(d.id));
+                    handleSelectAllForPost(post.id, !hasAllSelected);
+                    setIsUpdateModalOpen(false);
+                    setIsViewingItems(false);
+                    setSelectedDonation(null);
+                  }}
+                  className={`btn btn-sm ${
+                    post.donations.filter(d => d.donationStatus !== "RECEIVED").every(d => selectedDonations.includes(d.id))
+                      ? "btn-error text-white"  // Alert color when all selected
+                      : "btn-primary text-white" // Primary color when not all selected
+                  }`}
+                  disabled={post.donations.every(d => d.donationStatus === "RECEIVED")}
+                >
+                  {post.donations.filter(d => d.donationStatus !== "RECEIVED").every(d => selectedDonations.includes(d.id))
+                    ? "Deselect All"
+                    : "Select All"}
+                </button>
+                
+                {selectedDonations.some(id => 
+                  post.donations.some(d => d.id === id)
+                ) && (
+                  <button
+                    onClick={() => {
+                      setSelectedDonation(null);
+                      setIsViewingItems(false);
+                      setIsUpdateModalOpen(true);
+                    }}
+                    className="btn btn-primary btn-sm text-white"
+                  >
+                    Update Selected ({
+                      selectedDonations.filter(id => 
+                        post.donations.some(d => d.id === id)
+                      ).length
+                    })
+                  </button>
+                )}
+              </div>
+
+              <div className="overflow-x-auto">
+                {/* For mobile screens */}
+                <div className="md:hidden">
                   {post.donations.length > 0 ? (
                     post.donations.map((donation) => (
-                      <tr key={donation.id}>
-                        <td className="border p-2 text-center">
+                      <div key={donation.id} className="mb-4 border rounded-lg p-4 bg-white">
+                        <div className="flex items-center justify-between mb-2">
                           <input
                             type="checkbox"
                             checked={selectedDonations.includes(donation.id)}
                             onChange={(e) => {
-                              setSelectedDonations(
+                              e.stopPropagation();
+                              setSelectedDonations(prev =>
                                 e.target.checked
-                                  ? [...selectedDonations, donation.id]
-                                  : selectedDonations.filter(
-                                      (id) => id !== donation.id
-                                    )
+                                  ? [...prev, donation.id]
+                                  : prev.filter((id) => id !== donation.id)
                               );
+                              setIsUpdateModalOpen(false);
+                              setIsViewingItems(false);
+                              setSelectedDonation(null);
                             }}
                             className="checkbox checkbox-primary checkbox-sm rounded-full"
+                            disabled={donation.donationStatus === "RECEIVED"}
                           />
-                        </td>
-                        <td className="border p-2">{donation.controlNumber}</td>
-                        <td className="border p-2">
-                          {donation.donationStatus}
-                        </td>
-                        <td className="border p-2">
-                          {donation.donor?.name || "Anonymous"}
-                        </td>
-                        <td className="border p-2 text-center">
                           <button
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setSelectedDonation(donation);
                               setIsViewingItems(true);
+                              setIsUpdateModalOpen(false);
                             }}
                             className="btn btn-ghost btn-sm"
                           >
                             <FaEye className="text-lg" />
                           </button>
-                        </td>
-                      </tr>
+                        </div>
+                        <div className="space-y-2">
+                          <p><span className="font-semibold">Control Number:</span> {donation.controlNumber}</p>
+                          <p><span className="font-semibold">Status:</span> {donation.donationStatus}</p>
+                          <p><span className="font-semibold">Donor:</span> {donation.donor?.name || "Anonymous"}</p>
+                        </div>
+                      </div>
                     ))
                   ) : (
-                    <tr>
-                      <td
-                        colSpan={5}
-                        className="border p-4 text-center text-gray-500"
-                      >
-                        No donations found
-                      </td>
-                    </tr>
+                    <div className="text-center text-gray-500 py-4">
+                      No donations found
+                    </div>
                   )}
-                </tbody>
-              </table>
+                </div>
+
+                {/* For desktop screens */}
+                <table className="w-full border-collapse hidden md:table">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="border p-2">Select</th>
+                      <th className="border p-2">Control Number</th>
+                      <th className="border p-2">Status</th>
+                      <th className="border p-2">Donor</th>
+                      <th className="border p-2">View</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {post.donations.length > 0 ? (
+                      post.donations.map((donation) => (
+                        <tr key={donation.id}>
+                          <td className="border p-2 text-center">
+                            <input
+                              type="checkbox"
+                              checked={selectedDonations.includes(donation.id)}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                setSelectedDonations(prev =>
+                                  e.target.checked
+                                    ? [...prev, donation.id]
+                                    : prev.filter((id) => id !== donation.id)
+                                );
+                                setIsUpdateModalOpen(false);
+                                setIsViewingItems(false);
+                                setSelectedDonation(null);
+                              }}
+                              className="checkbox checkbox-primary checkbox-sm rounded-full"
+                              disabled={donation.donationStatus === "RECEIVED"}
+                            />
+                          </td>
+                          <td className="border p-2">
+                            {donation.controlNumber}
+                          </td>
+                          <td className="border p-2">
+                            {donation.donationStatus}
+                          </td>
+                          <td className="border p-2">
+                            {donation.donor?.name || "Anonymous"}
+                          </td>
+                          <td className="border p-2 text-center">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedDonation(donation);
+                                setIsViewingItems(true);
+                                setIsUpdateModalOpen(false);
+                              }}
+                              className="btn btn-ghost btn-sm"
+                            >
+                              <FaEye className="text-lg" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={5}
+                          className="border p-4 text-center text-gray-500"
+                        >
+                          No donations found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         ))}
@@ -264,6 +385,7 @@ export default function ManageDonationRequestPosts() {
               setSelectedDonations([]);
             }}
             onUpdateStatus={handleBulkUpdateStatus}
+            posts={posts}
           />
         )}
         {selectedDonation && isViewingItems && (
@@ -286,11 +408,11 @@ function ViewItemsModal({
 }) {
   return (
     <dialog className="modal modal-open">
-      <div className="modal-box">
-        <h2 className="text-xl font-bold mb-4 bg-primary text-white p-5">
+      <div className="modal-box w-11/12 max-w-xl mx-auto">
+        <h2 className="text-lg md:text-xl font-bold mb-4 bg-primary text-white p-3 md:p-5 rounded-t">
           Donation Items: {donation.controlNumber}
         </h2>
-        <div className="p-5">
+        <div className="p-3 md:p-5">
           {donation.donationItems && donation.donationItems.length > 0 ? (
             <ul className="list-disc list-inside">
               {donation.donationItems.map((item, index) => (
@@ -320,12 +442,34 @@ function UpdateStatusModal({
   donationIds,
   onClose,
   onUpdateStatus,
+  posts,
 }: {
   donationIds: number[];
   onClose: () => void;
   onUpdateStatus: (newStatus: string, remarks: string) => void;
+  posts: BarangayRequestPost[];
 }) {
-  const [status, setStatus] = useState("PLEDGED");
+  // Add status sequence definition
+  const statusSequence = {
+    PLEDGED: ["COLLECTED"],
+    COLLECTED: ["PROCESSING"],
+    PROCESSING: ["IN_TRANSIT"],
+    IN_TRANSIT: ["RECEIVED"],
+    RECEIVED: [],
+  };
+
+  // Get current status of selected donations from posts state
+  const [currentStatus, setCurrentStatus] = useState(() => {
+    const firstDonation = posts.flatMap((post: BarangayRequestPost) => 
+      post.donations.filter((d: Donation) => donationIds.includes(d.id))
+    )[0];
+    return firstDonation?.donationStatus || "PLEDGED";
+  });
+
+  const [status, setStatus] = useState(() => {
+    // Set initial status to the first available next status
+    return statusSequence[currentStatus as keyof typeof statusSequence][0] || currentStatus;
+  });
   const [remarks, setRemarks] = useState("");
   const [isConfirming, setIsConfirming] = useState(false);
   const [updateResult, setUpdateResult] = useState<{
@@ -333,7 +477,19 @@ function UpdateStatusModal({
     message?: string;
   } | null>(null);
 
+  // Get available next statuses
+  const availableStatuses = statusSequence[currentStatus as keyof typeof statusSequence];
+
   const handleSubmit = async () => {
+    // Validate status transition
+    if (!availableStatuses.includes(status as never)) {
+      setUpdateResult({
+        success: false,
+        message: "Invalid status transition. Please select a valid next status.",
+      });
+      return;
+    }
+
     try {
       setIsConfirming(true);
       await onUpdateStatus(status, remarks);
@@ -354,11 +510,11 @@ function UpdateStatusModal({
 
   return (
     <dialog className="modal modal-open">
-      <div className="modal-box">
-        <h2 className="text-xl font-bold mb-4 bg-primary text-white p-5">
+      <div className="modal-box w-11/12 max-w-xl mx-auto">
+        <h2 className="text-lg md:text-xl font-bold mb-4 bg-primary text-white p-3 md:p-5 rounded-t">
           Update Status: {donationIds.length} Donations
         </h2>
-        <div className="p-5">
+        <div className="p-3 md:p-5">
           {updateResult && (
             <div
               className={`alert ${
@@ -370,19 +526,23 @@ function UpdateStatusModal({
           )}
 
           <div className={updateResult ? "hidden" : ""}>
-            <p className="mb-2 font-semibold">Current Status: {status}</p>
+            <p className="mb-2 font-semibold">Current Status: {currentStatus}</p>
             <div className="mt-4">
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="select select-primary select-bordered w-full mb-2"
-                disabled={isConfirming}
+                disabled={isConfirming || availableStatuses.length === 0}
               >
-                <option value="PLEDGED">Pledged</option>
-                <option value="COLLECTED">Collected</option>
-                <option value="PROCESSING">Processing</option>
-                <option value="IN_TRANSIT">In Transit</option>
-                <option value="RECEIVED">Received</option>
+                {availableStatuses.length > 0 ? (
+                  availableStatuses.map((status) => (
+                    <option key={status} value={status}>
+                      {status.replace(/_/g, " ")}
+                    </option>
+                  ))
+                ) : (
+                  <option value={currentStatus}>No further status available</option>
+                )}
               </select>
               <input
                 type="text"

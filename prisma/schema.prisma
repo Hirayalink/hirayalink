@@ -9,22 +9,22 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Admin {
-  id            String   @id @default(uuid()) // Change to UUID
+  id            String   @id @default(uuid())
   name          String   @unique
   contactNumber String   @unique
   address       String?
   password      String
-  barangayId    String // Foreign key to Barangay
-  barangay      Barangay @relation(fields: [barangayId], references: [id]) // Relation to Barangay
+  barangayId    String
+  barangay      Barangay @relation(fields: [barangayId], references: [id])
 }
 
 model Donor {
-  id            String     @id @default(uuid()) // Change to UUID
+  id            String     @id @default(uuid())
   name          String     @unique
   orgName       String?
   contactNumber String     @unique
@@ -36,7 +36,7 @@ model Donor {
 }
 
 model BarangayRequestPost {
-  id              String     @id @default(uuid()) // Change to UUID
+  id              String     @id @default(uuid())
   area            String
   person          String
   typeOfCalamity  String
@@ -47,7 +47,7 @@ model BarangayRequestPost {
   dropOffLandmark String
   image           Bytes?     @db.ByteA
   dateTime        DateTime   @default(now())
-  batchNumber     Int // Added field for batch number
+  batchNumber     Int
   likes           Like[]     @relation("BarangayRequestPostLikes")
   comments        Comment[]  @relation("BarangayRequestPostComments")
   Barangay        Barangay?  @relation(fields: [barangayId], references: [id])
@@ -56,7 +56,7 @@ model BarangayRequestPost {
 }
 
 model Like {
-  id                     String                @id @default(uuid()) // Change to UUID
+  id                     String                @id @default(uuid())
   userId                 String
   user                   Donor                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   barangayRequestPostId  String?
@@ -70,7 +70,7 @@ model Like {
 }
 
 model Comment {
-  id                     String                @id @default(uuid()) // Change to UUID
+  id                     String                @id @default(uuid())
   content                String                @db.Text
   userId                 String
   user                   Donor                 @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -82,30 +82,35 @@ model Comment {
 }
 
 model Batch {
-  id          String   @id @default(uuid()) // Change to UUID
-  batchNumber String   @unique // Unique identifier for the batch
-  description String? // Optional description for the batch
-  donationIds String // Comma-separated list of donation IDs
-  createdAt   DateTime @default(now()) // Timestamp for when the batch was created
+  id          String   @id @default(uuid())
+  batchNumber String   @unique
+  description String?
+  donationIds String
+  createdAt   DateTime @default(now())
 }
 
 model RecipientRequestPost {
-  id                String    @id @default(uuid())
-  completeName      String    @db.VarChar(191)
-  age               Int
-  area              String
-  noOfFamilyMembers Int
-  contactNumber     String    @db.VarChar(191)
-  emailAddress      String?   @db.VarChar(191)
-  typeOfCalamity    String    @db.VarChar(191)
-  inKindNecessities String    @db.Text
-  specifications    String    @db.Text
-  uploadedPhoto     Bytes?    @db.ByteA
-  dateTime          DateTime  @default(now())
-  likes             Like[]    @relation("RecipientRequestPostLikes")
-  comments          Comment[] @relation("RecipientRequestPostComments")
-  barangayId        String?
-  Barangay          Barangay? @relation(fields: [barangayId], references: [id])
+  id                  String    @id @default(uuid())
+  completeName        String    @db.VarChar(191)
+  age                 Int
+  area                String
+  noOfFamilyMembers   Int
+  numberOfChildren    Int?
+  ageGroupInfant      Int?
+  ageGroupEarlyChild  Int?
+  ageGroupMiddleChild Int?
+  ageGroupAdolescent  Int?
+  contactNumber       String    @db.VarChar(11)
+  emailAddress        String?   @db.VarChar(191)
+  typeOfCalamity      String    @db.VarChar(191)
+  inKindNecessities   String    @db.Text
+  specifications      String    @db.Text
+  uploadedPhoto       Bytes?    @db.ByteA
+  dateTime            DateTime  @default(now())
+  likes               Like[]    @relation("RecipientRequestPostLikes")
+  comments            Comment[] @relation("RecipientRequestPostComments")
+  barangayId          String?
+  Barangay            Barangay? @relation(fields: [barangayId], references: [id])
 }
 
 model Donation {
@@ -125,7 +130,7 @@ model Donation {
 }
 
 model DonationItem {
-  id         String   @id @default(uuid()) // Change to UUID
+  id         String   @id @default(uuid())
   donationId String
   donation   Donation @relation(fields: [donationId], references: [id], onDelete: Cascade)
   itemName   String
@@ -133,7 +138,7 @@ model DonationItem {
 }
 
 model DonationStatusLog {
-  id         String         @id @default(uuid()) // Change to UUID
+  id         String         @id @default(uuid())
   donationId String
   donation   Donation       @relation(fields: [donationId], references: [id], onDelete: Cascade)
   status     DonationStatus
@@ -144,7 +149,7 @@ model DonationStatusLog {
 model Barangay {
   id                    String                 @id @default(uuid()) // Change to UUID
   name                  String                 @unique
-  donations             Donation[] // Relationship with Donations
+  donations             Donation[]
   Admin                 Admin[]
   barangayRequestPosts  BarangayRequestPost[]
   recipientRequestPosts RecipientRequestPost[]
@@ -153,18 +158,18 @@ model Barangay {
 }
 
 model SuccessStory {
-  id                 String    @id @default(uuid()) // Change to UUID
-  area               String?   @db.VarChar(191) // Barangay number/area
+  id                 String    @id @default(uuid())
+  area               String?   @db.VarChar(191)
   barangayId         String?
   Barangay           Barangay? @relation(fields: [barangayId], references: [id], onDelete: Cascade)
-  nameOfCalamity     String?   @db.VarChar(191) // Name of the calamity
-  controlNumber      String?   @db.VarChar(191) // Control number for tracking
-  transactionIds     String?   @db.Text // Comma-separated list of transaction IDs
-  batchNumber        String?   @db.VarChar(191) // Batch number related to the aid
-  numberOfRecipients Int? // Number of people who received aid
-  storyText          String?   @db.Text // The actual success story text
-  createdAt          DateTime  @default(now()) // Timestamp when the success story was created
-  image              Bytes?    @db.ByteA // Image of the success story
+  nameOfCalamity     String?   @db.VarChar(191)
+  controlNumber      String?   @db.VarChar(191)
+  transactionIds     String?   @db.Text
+  batchNumber        String?   @db.VarChar(191)
+  numberOfRecipients Int?
+  storyText          String?   @db.Text
+  createdAt          DateTime  @default(now())
+  image              Bytes?    @db.ByteA
 }
 
 model calamityImpact {
@@ -178,7 +183,6 @@ model calamityImpact {
   image          Bytes?   @db.ByteA
 }
 
-// Enum for donation status
 enum DonationStatus {
   PLEDGED
   COLLECTED

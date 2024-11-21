@@ -8,8 +8,8 @@ import Link from "next/link";
 export default function SignUp() {
   return (
     <main>
-      <div className="card bg-neutral text-neutral-content min-w-min">
-        <div className="flex flex-row card-body">
+      <div className="card bg-neutral text-neutral-content min-w-min max-w-xl mx-auto">
+        <div className="flex flex-col md:flex-row card-body">
           <div className="flex flex-col items-center">
             <h1 className="card-title text-center text-2xl font-bold mb-4">
               SIGN UP
@@ -42,7 +42,9 @@ export default function SignUp() {
               </Link>
             </p>
           </div>
-          <div className="divider divider-primary divider-horizontal">or</div>
+          <div className="divider md:divider-horizontal divider-primary my-2 md:my-0">
+            or
+          </div>
           <div className="flex flex-col items-center">
             <h1 className="card-title text-center text-2xl font-bold mb-4">
               REQUEST

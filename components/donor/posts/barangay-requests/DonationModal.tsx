@@ -83,9 +83,9 @@ export default function DonationModal({ post, isOpen, onClose }: { post: any; is
   };
 
   return (
-    <dialog open={isOpen} className="modal">
+    <dialog open={isOpen} className="modal modal-open">
       <div className="modal-box max-w-2xl bg-white">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between bg-primary text-white items-center sticky top-0 p-5">
           <h3 className="font-bold text-lg">Make a Donation</h3>
           <button onClick={onClose} className="btn btn-sm btn-circle btn-ghost">✕</button>
         </div>
@@ -94,7 +94,7 @@ export default function DonationModal({ post, isOpen, onClose }: { post: any; is
           <p className="text-center text-gray-500 my-4">No items needed for this request.</p>
         ) : (
           availableCategories.map((category) => (
-            <div key={category} className="mb-6">
+            <div key={category} className="p-5">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-semibold capitalize">{category}</h3>
                 <button
@@ -137,7 +137,7 @@ export default function DonationModal({ post, isOpen, onClose }: { post: any; is
                         onClick={() => removeItem(globalIndex)}
                         className="btn btn-ghost btn-square"
                       >
-                        <FaTrash className="text-red-500" />
+                        <FaTrash className="text-error" />
                       </button>
                     </div>
                   );
@@ -146,7 +146,7 @@ export default function DonationModal({ post, isOpen, onClose }: { post: any; is
           ))
         )}
 
-        <div className="modal-action">
+        <div className="modal-action mb-5 mr-5">
           <div className="flex gap-2">
             <button 
               className="btn btn-ghost" 
@@ -159,7 +159,7 @@ export default function DonationModal({ post, isOpen, onClose }: { post: any; is
             </button>
             <button 
               onClick={handleSubmit}
-              className="btn btn-primary"
+              className="btn btn-primary text-white"
               disabled={donationItems.length === 0 || isSubmitting}
               type="button"
             >

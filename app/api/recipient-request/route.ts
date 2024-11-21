@@ -7,39 +7,39 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
 
-    const completeName = formData.get("completeName") as string;
-    const age = parseInt(formData.get("age") as string);
-    const noOfFamilyMembers = parseInt(
-      formData.get("noOfFamilyMembers") as string
-    );
-    const contactNumber = formData.get("contactNumber") as string;
-    const emailAddress = formData.get("emailAddress") as string;
-    const barangayId = formData.get("barangayId") as string;
-    const area = formData.get("area") as string;
-    const typeOfCalamity = formData.get("typeOfCalamity") as string;
-    const inKindNecessities = formData.get("inKindNecessities") as string;
-    const specifications = formData.get("specifications") as string;
-    const proofOfResidence = formData.get("proofOfResidence") as File;
-
-    let proofOfResidenceBuffer: Buffer | null = null;
-    if (proofOfResidence) {
-      const arrayBuffer = await proofOfResidence.arrayBuffer();
-      proofOfResidenceBuffer = Buffer.from(arrayBuffer);
-    }
+    // Helper function to safely parse numbers
+    const getNumberValue = (value: FormDataEntryValue | null) => {
+      const strValue = value as string;
+      return strValue && strValue !== "" ? parseInt(strValue) : 0;
+    };
 
     const newPost = await prisma.recipientRequestPost.create({
       data: {
-        completeName,
-        age,
-        area,
-        noOfFamilyMembers,
-        contactNumber,
-        emailAddress,
-        typeOfCalamity,
-        inKindNecessities,
-        specifications,
-        uploadedPhoto: proofOfResidenceBuffer,
-        barangayId,
+        completeName: formData.get("completeName") as string,
+        age: getNumberValue(formData.get("age")),
+        area: formData.get("area") as string,
+        noOfFamilyMembers: getNumberValue(formData.get("noOfFamilyMembers")),
+        numberOfChildren: getNumberValue(formData.get("numberOfChildren")),
+        ageGroupInfant: getNumberValue(formData.get("ageGroupInfant")),
+        ageGroupEarlyChild: getNumberValue(formData.get("ageGroupEarlyChild")),
+        ageGroupMiddleChild: getNumberValue(
+          formData.get("ageGroupMiddleChild")
+        ),
+        ageGroupAdolescent: getNumberValue(formData.get("ageGroupAdolescent")),
+        contactNumber: formData.get("contactNumber") as string,
+        emailAddress: (formData.get("emailAddress") as string) || null,
+        typeOfCalamity: formData.get("typeOfCalamity") as string,
+        inKindNecessities: formData.get("inKindNecessities") as string,
+        specifications: formData.get("specifications") as string,
+        uploadedPhoto: await (async () => {
+          const file = formData.get("proofOfResidence") as File;
+          if (file) {
+            const arrayBuffer = await file.arrayBuffer();
+            return Buffer.from(arrayBuffer);
+          }
+          return null;
+        })(),
+        barangayId: formData.get("barangayId") as string,
       },
     });
 

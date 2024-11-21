@@ -14,6 +14,7 @@ export default function DonorSignUp() {
     contactNumber: "",
     address: "",
     password: "",
+    agreedToTerms: false,
   });
 
   const [error, setError] = useState("");
@@ -31,12 +32,21 @@ export default function DonorSignUp() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // State variable to track checkbox state
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
+
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.name || !formData.contactNumber || !formData.password) {
       setError("Please fill all required fields");
+      return;
+    }
+
+    if (!agreedToTerms || !agreedToPrivacy) {
+      setError("Please agree to both the Terms of Service and Privacy Policy");
       return;
     }
 
@@ -64,10 +74,10 @@ export default function DonorSignUp() {
   };
 
   return (
-    <div className="flex justify-center items-center mb-10">
+    <div className="flex justify-center items-center mb-10 px-4">
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col w-full bg-base-100 p-6 rounded-lg shadow-lg min-w-sm"
+        className="flex flex-col w-full max-w-xl bg-base-100 p-6 rounded-lg shadow-lg"
       >
         <h2 className="flex justify-center items-center text-2xl font-bold text-center mb-5 gap-2">
           <FaHandHoldingHeart />
@@ -77,7 +87,7 @@ export default function DonorSignUp() {
         {error && <p className="text-error text-center mb-4">{error}</p>}
 
         {/* Form fields */}
-        <div className="flex flex-row gap-5 xs:flex-col xs:gap-0">
+        <div className="flex flex-col md:flex-row gap-4">
           <div className="form-control mb-4 w-full">
             <label className="label">
               <span className="label-text">Name</span>
@@ -90,7 +100,7 @@ export default function DonorSignUp() {
               required
             />
           </div>
-          <div className="form-control mb-4">
+          <div className="form-control mb-4 w-full">
             <label className="label">
               <span className="label-text">Contact Number</span>
             </label>
@@ -144,24 +154,55 @@ export default function DonorSignUp() {
         </div>
 
         {/* Modal trigger links */}
-        <p className="text-center mb-5">
-          By signing up, you agree to our{" "}
-          <a
-            href="#"
-            className="text-primary cursor-pointer"
-            onClick={toggleModal} // Opens Terms of Service modal
-          >
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a
-            href="#"
-            className="text-primary cursor-pointer"
-            onClick={togglePrivacyModal} // Opens Privacy Policy modal
-          >
-            Privacy Policy
-          </a>
-        </p>
+        <div className="space-y-2 mb-5">
+          <div className="form-control">
+            <label className="label cursor-pointer justify-start gap-2">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-primary"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+              />
+              <span className="label-text">
+                I agree to the{" "}
+                <a
+                  href="#"
+                  className="text-primary hover:underline"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleModal();
+                  }}
+                >
+                  Terms of Service
+                </a>
+              </span>
+            </label>
+          </div>
+
+          <div className="form-control">
+            <label className="label cursor-pointer justify-start gap-2">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-primary"
+                checked={agreedToPrivacy}
+                onChange={(e) => setAgreedToPrivacy(e.target.checked)}
+              />
+              <span className="label-text">
+                I agree to the{" "}
+                <a
+                  href="#"
+                  className="text-primary hover:underline"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    togglePrivacyModal();
+                  }}
+                >
+                  Privacy Policy
+                </a>
+              </span>
+            </label>
+          </div>
+        </div>
 
         <button type="submit" className="btn btn-primary text-white w-full">
           Sign Up
@@ -170,8 +211,8 @@ export default function DonorSignUp() {
 
       {/* Modal for Terms of Service */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 p-4">
+          <div className="bg-base-100 p-6 rounded-lg shadow-lg max-w-md w-full">
             <h2 className="text-2xl font-bold mb-4">Terms of Service</h2>
             <div className="overflow-y-auto h-64 mb-4">
               <p>
@@ -231,8 +272,8 @@ export default function DonorSignUp() {
 
       {/* Modal for Privacy Policy */}
       {showPrivacyModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 p-4">
+          <div className="bg-base-100 p-6 rounded-lg shadow-lg max-w-md w-full">
             <h2 className="text-2xl font-bold mb-4">Privacy Policy</h2>
             <div className="overflow-y-auto h-64 mb-4">
               <p>
