@@ -53,11 +53,11 @@ const PostItem = ({
           />
         )}
 
-        <div className="flex justify-between items-center">
-          <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => handleLikeClick(post.id)}
-              className={`btn btn-sm ${
+              className={`btn btn-xs sm:btn-sm ${
                 likedPosts.has(post.id) ? "btn-primary" : "btn-ghost"
               }`}
             >
@@ -65,26 +65,26 @@ const PostItem = ({
             </button>
             <button
               onClick={() => handleOpenModal("comments", post.id)}
-              className="btn btn-sm btn-ghost"
+              className="btn btn-xs sm:btn-sm btn-ghost"
             >
               <FaComment /> {post.comments.length}
             </button>
             <button
               onClick={() => handleOpenModal("donate", post.id)}
-              className="btn btn-sm btn-primary"
+              className="btn btn-xs sm:btn-sm btn-primary"
             >
               <MdVolunteerActivism /> Donate
             </button>
             <button
               onClick={() => handleViewDonations(post.id)}
-              className="btn btn-secondary btn-sm"
+              className="btn btn-xs sm:btn-sm btn-secondary"
             >
               View Donations
             </button>
           </div>
           <button
             onClick={() => handleOpenModal("details", post.id)}
-            className="btn btn-sm btn-ghost"
+            className="btn btn-xs sm:btn-sm btn-ghost"
           >
             <FaInfoCircle /> Details
           </button>

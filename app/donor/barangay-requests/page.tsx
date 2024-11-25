@@ -245,23 +245,23 @@ export default function BarangayRequests() {
     <div className="flex flex-col justify-center w-full">
       <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-16 z-20 w-full">
         <div className="flex justify-between pt-10 pb-5 backdrop-blur-sm bg-black/25 w-full">
-          <div className="container mx-auto px-4 flex justify-between items-center">
-            <div className="invisible shrink-0 w-1/4"></div>
-            <div className="flex flex-col items-center flex-grow">
-              <h1 className="mb-0 py-0 text-3xl font-bold text-white">
+          <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+            <div className="invisible shrink-0 w-0 md:w-1/4"></div>
+            <div className="flex flex-col items-center flex-grow mb-4 md:mb-0">
+              <h1 className="mb-0 py-0 text-2xl md:text-3xl font-bold text-white text-center">
                 Barangay Donation Request Post
               </h1>
-              <p className="text-center text-white mt-2 text-lg">
+              <p className="text-center text-white mt-2 text-base md:text-lg px-2">
                 {selectedBarangay
                   ? `Official requests from ${selectedBarangay}`
                   : "Official requests from all Barangays"}
               </p>
             </div>
-            <div className="w-1/4 flex justify-end">
+            <div className="w-full md:w-1/4 flex justify-center md:justify-end">
               <select
                 value={selectedBarangay}
                 onChange={(e) => setSelectedBarangay(e.target.value)}
-                className="select select-bordered w-min max-w-xs"
+                className="select select-bordered w-full max-w-xs md:w-min"
               >
                 <option value="">All Areas</option>
                 {barangays.map((barangay) => (

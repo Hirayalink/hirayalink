@@ -84,9 +84,9 @@ export default function DonationModal({ post, isOpen, onClose }: { post: any; is
 
   return (
     <dialog open={isOpen} className="modal modal-open">
-      <div className="modal-box max-w-2xl bg-white">
-        <div className="flex justify-between bg-primary text-white items-center sticky top-0 p-5">
-          <h3 className="font-bold text-lg">Make a Donation</h3>
+      <div className="modal-box max-w-2xl bg-white w-[95%] sm:w-full mx-4">
+        <div className="flex justify-between bg-primary text-white items-center sticky top-0 p-3 sm:p-5">
+          <h3 className="font-bold text-base sm:text-lg">Make a Donation</h3>
           <button onClick={onClose} className="btn btn-sm btn-circle btn-ghost">✕</button>
         </div>
         

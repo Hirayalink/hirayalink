@@ -43,15 +43,19 @@ export default function RecipientRequests() {
         throw new Error("Failed to fetch posts");
       }
       const data = await response.json();
+      
+      console.log('Fetched posts:', data.posts);
 
       setPosts((prevPosts) => {
         if (page === 1) return data.posts;
-        const newPosts = data.posts.filter(
-          (post: RecipientRequests) => !prevPosts.some((p) => p.id === post.id)
+        const uniquePosts = data.posts.filter(
+          (newPost: RecipientRequests) => 
+            !prevPosts.some((existingPost) => existingPost.id === newPost.id)
         );
-        return [...prevPosts, ...newPosts];
+        return [...prevPosts, ...uniquePosts];
       });
 
+      console.log('Has more posts:', data.hasMore);
       setHasMore(data.posts.length > 0 && data.hasMore);
 
       const initialLikedPosts = new Set(
