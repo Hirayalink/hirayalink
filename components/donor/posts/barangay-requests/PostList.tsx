@@ -32,7 +32,7 @@ const PostList = ({
   }
 
   return (
-    <div className="space-y-4 p-4 max-w-screen-md">
+    <div className="space-y-4 p-2 sm:p-4 w-full max-w-screen-md mx-auto">
       {posts.map((post: any) => (
         <PostItem
           key={post.id}
