@@ -1,6 +1,8 @@
-'use client';
+"use client";
 
 import { useState } from "react";
+import { FaEyeSlash } from "react-icons/fa";
+import { FaEye } from "react-icons/fa";
 import { RiAdminFill } from "react-icons/ri";
 
 export default function AdminSignUp() {
@@ -14,6 +16,7 @@ export default function AdminSignUp() {
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false); // For Terms of Service modal
   const [showPrivacyModal, setShowPrivacyModal] = useState(false); // For Privacy Policy modal
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -132,14 +135,23 @@ export default function AdminSignUp() {
           />
         </div>
 
-        <div className="form-control mb-6">
-          <label className="label">
-            <span className="label-text">Password</span>
-          </label>
+        <div className="form-control mb-6 relative">
+          <span className="flex">
+            <label className="label">
+              <span className="label-text">Password</span>
+            </label>
+            <button
+              type="button"
+              className="cursor-pointer text-primary"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </span>
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
-            className="input input-bordered input-primary w-full"
+            className="input input-bordered input-primary w-full pr-10"
             onChange={handleInputChange}
             required
           />

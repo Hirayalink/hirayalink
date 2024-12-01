@@ -84,7 +84,7 @@ export default function DonationModal({ post, isOpen, onClose }: { post: any; is
 
   return (
     <dialog open={isOpen} className="modal modal-open">
-      <div className="modal-box max-w-2xl bg-white w-[95%] sm:w-full mx-4">
+      <div className="modal-box max-w-2xl bg-white w-[90%] sm:w-full mx-4 p-4">
         <div className="flex justify-between bg-primary text-white items-center sticky top-0 p-3 sm:p-5">
           <h3 className="font-bold text-base sm:text-lg">Make a Donation</h3>
           <button onClick={onClose} className="btn btn-sm btn-circle btn-ghost">✕</button>
@@ -122,14 +122,14 @@ export default function DonationModal({ post, isOpen, onClose }: { post: any; is
                       <input
                         type="text"
                         placeholder="Item description"
-                        className="input input-bordered flex-grow"
+                        className="input input-bordered flex-grow mb-2"
                         value={item.itemName}
                         onChange={(e) => updateDonationItem(globalIndex, 'itemName', e.target.value)}
                       />
                       <input
                         type="number"
                         min="1"
-                        className="input input-bordered w-24"
+                        className="input input-bordered w-full sm:w-24 mb-2"
                         value={item.quantity}
                         onChange={(e) => updateDonationItem(globalIndex, 'quantity', parseInt(e.target.value))}
                       />

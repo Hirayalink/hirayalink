@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
-import { FaHandHoldingHeart } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaHandHoldingHeart } from "react-icons/fa";
 import { RiAdminFill } from "react-icons/ri";
 import { FaHandHolding } from "react-icons/fa";
 
@@ -17,6 +17,7 @@ export default function Login() {
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -105,20 +106,32 @@ export default function Login() {
                 </div>
 
                 <div className="form-control mb-4 flex-1">
-                  <label className="label">
-                    <span className="label-text">Password</span>
-                  </label>
+                  <span className="flex">
+                    <label className="label">
+                      <span className="label-text">Password</span>
+                    </label>
+                    <button
+                      type="button"
+                      className="cursor-pointer text-primary"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </span>
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     name="password"
-                    className="input input-bordered w-full"
+                    className="input input-bordered input-primary w-full pr-10"
                     onChange={handleInputChange}
                     required
                   />
                 </div>
               </div>
               <div className="form-control mb-4">
-                <button type="submit" className="btn btn-primary text-white w-full">
+                <button
+                  type="submit"
+                  className="btn btn-primary text-white w-full"
+                >
                   Login
                 </button>
               </div>
@@ -133,9 +146,11 @@ export default function Login() {
               </p>
             </form>
           </div>
-          
-          <div className="divider md:divider-horizontal divider-primary my-4 md:my-0">or</div>
-          
+
+          <div className="divider md:divider-horizontal divider-primary my-4 md:my-0">
+            or
+          </div>
+
           <div className="flex flex-col items-center min-w-fit">
             <h1 className="card-title text-center text-2xl font-bold mb-4">
               REQUEST
@@ -162,13 +177,24 @@ export default function Login() {
           <div className="bg-neutral p-8 rounded-lg shadow-xl">
             <div className="flex flex-col items-center">
               <div className="text-error mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-12 w-12"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <h3 className="text-lg font-bold mb-4">Error</h3>
               <p className="text-center mb-4">{error}</p>
-              <button 
+              <button
                 className="btn btn-primary text-white"
                 onClick={() => setError("")}
               >

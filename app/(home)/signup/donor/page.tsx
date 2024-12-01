@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { FaHandHoldingHeart } from "react-icons/fa";
+import { FaHandHoldingHeart, FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function DonorSignUp() {
   const router = useRouter();
@@ -35,6 +35,9 @@ export default function DonorSignUp() {
   // State variable to track checkbox state
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
+
+  // State variable to track password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,7 +126,6 @@ export default function DonorSignUp() {
             name="orgName"
             className="input input-bordered input-primary w-full"
             onChange={handleInputChange}
-            required
           />
         </div>
 
@@ -140,14 +142,23 @@ export default function DonorSignUp() {
           />
         </div>
 
-        <div className="form-control mb-6">
-          <label className="label">
-            <span className="label-text">Password</span>
-          </label>
+        <div className="form-control mb-6 relative">
+          <span className="flex">
+            <label className="label">
+              <span className="label-text">Password</span>
+            </label>
+            <button
+              type="button"
+              className="cursor-pointer text-primary"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </span>
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
-            className="input input-bordered input-primary w-full"
+            className="input input-bordered input-primary w-full pr-10"
             onChange={handleInputChange}
             required
           />
