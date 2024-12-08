@@ -163,7 +163,7 @@ model SuccessStory {
   barangayId         String?
   Barangay           Barangay? @relation(fields: [barangayId], references: [id], onDelete: Cascade)
   nameOfCalamity     String?   @db.VarChar(191)
-  controlNumber      String?   @db.VarChar(191)
+  controlNumber      String?   @db.Text
   transactionIds     String?   @db.Text
   batchNumber        String?   @db.VarChar(191)
   numberOfRecipients Int?
